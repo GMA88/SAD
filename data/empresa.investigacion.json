@@ -1,0 +1,30 @@
+[{
+  "_id": {
+    "$oid": "671ea70e3f4252e4461e18eb"
+  },
+  "nombre_proyecto": "Desarrollo del Detector VX-300",
+  "responsable": "Elena Torres",
+  "fecha_inicio": {
+    "$date": "2023-01-15T00:00:00.000Z"
+  },
+  "fecha_estimacion_termino": {
+    "$date": "2024-06-30T00:00:00.000Z"
+  },
+  "estado": "En progreso",
+  "descripcion": "Nuevo dispositivo portátil para detección de múltiples venenos."
+},
+{
+  "_id": {
+    "$oid": "671ea70e3f4252e4461e18ec"
+  },
+  "nombre_proyecto": "Mejora de Sensores Químicos",
+  "responsable": "Dr. Manuel Ruiz",
+  "fecha_inicio": {
+    "$date": "2022-09-01T00:00:00.000Z"
+  },
+  "fecha_estimacion_termino": {
+    "$date": "2023-12-31T00:00:00.000Z"
+  },
+  "estado": "En progreso",
+  "descripcion": "Investigación para mejorar la sensibilidad de los sensores químicos."
+}]

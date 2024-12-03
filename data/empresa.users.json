@@ -1,0 +1,48 @@
+[{
+  "_id": {
+    "$oid": "674cb64f2e044582d5a771e6"
+  },
+  "username": "admin",
+  "password": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+  "role": "admin"
+},
+{
+  "_id": {
+    "$oid": "674cb64f2e044582d5a771e7"
+  },
+  "username": "investigador1",
+  "password": "25e6c9b6be0fb773433c28fb74db32a092df313b38b4992369600e8e31a3e507",
+  "role": "investigador"
+},
+{
+  "_id": {
+    "$oid": "674cb64f2e044582d5a771e8"
+  },
+  "username": "ventas1",
+  "password": "54d08f5f2a6d391aecf2294a5b85f24432ea945cd227b41b8ee25064bec44067",
+  "role": "ventas"
+},
+{
+  "_id": {
+    "$oid": "674cb64f2e044582d5a771e9"
+  },
+  "username": "inventario1",
+  "password": "89270a50341bb8e83734ee062603c63c219320ed4a40fb9fb8c2792358548e8a",
+  "role": "inventario"
+},
+{
+  "_id": {
+    "$oid": "674cb64f2e044582d5a771ea"
+  },
+  "username": "rrhh1",
+  "password": "81cc3742caefe37242ea8279b33c0acd65479e5c7243f6158e95aeafd9181b1a",
+  "role": "recursos_humanos"
+},
+{
+  "_id": {
+    "$oid": "674cb64f2e044582d5a771eb"
+  },
+  "username": "finanzas1",
+  "password": "a56ed14464ba5982a7f8b8eb18186d9ed43a965e836a4185352fba9e7b33a619",
+  "role": "finanzas"
+}]

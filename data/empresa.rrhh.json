@@ -1,0 +1,42 @@
+[{
+  "_id": {
+    "$oid": "671ea71e3f4252e4461e18f1"
+  },
+  "nombre": "Carlos Pérez",
+  "puesto": "Gerente de Recursos Humanos",
+  "departamento": "Recursos Humanos",
+  "salario": 55000,
+  "fecha_contratacion": {
+    "$date": "2018-03-15T00:00:00.000Z"
+  },
+  "email": "cperez@empresa.com",
+  "telefono": "+34 600 123 000"
+},
+{
+  "_id": {
+    "$oid": "671ea71e3f4252e4461e18f2"
+  },
+  "nombre": "Lucía Martínez",
+  "puesto": "Gerente de Ventas",
+  "departamento": "Ventas",
+  "salario": 50000,
+  "fecha_contratacion": {
+    "$date": "2019-07-10T00:00:00.000Z"
+  },
+  "email": "lmartinez@empresa.com",
+  "telefono": "+34 600 456 000"
+},
+{
+  "_id": {
+    "$oid": "671ea71e3f4252e4461e18f3"
+  },
+  "nombre": "Elena Torres",
+  "puesto": "Ingeniera de Investigación",
+  "departamento": "Investigación y Desarrollo",
+  "salario": 45000,
+  "fecha_contratacion": {
+    "$date": "2022-05-20T00:00:00.000Z"
+  },
+  "email": "etorres@empresa.com",
+  "telefono": "+34 600 789 012"
+}]

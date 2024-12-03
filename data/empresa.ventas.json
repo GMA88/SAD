@@ -1,0 +1,75 @@
+[{
+  "_id": {
+    "$oid": "671ea9823f4252e4461e18fd"
+  },
+  "venta_id": 1,
+  "fecha_venta": {
+    "$date": "2023-09-20T00:00:00.000Z"
+  },
+  "cliente_nombre": "Hospital General",
+  "cliente_contacto": "Dr. Álvaro Sánchez",
+  "cliente_telefono": "+52 600 987 654",
+  "cliente_email": "asanchez@hospitalgeneral.com",
+  "vendedor": "Lucía Martínez",
+  "total_venta": 3998.9,
+  "codigo_producto": "VX-100",
+  "nombre_producto": "Detector de Veneno VX-100",
+  "cantidad": 10,
+  "precio_unitario": 199.99
+},
+{
+  "_id": {
+    "$oid": "671ea9823f4252e4461e18fe"
+  },
+  "venta_id": 1,
+  "fecha_venta": {
+    "$date": "2023-09-20T00:00:00.000Z"
+  },
+  "cliente_nombre": "Hospital General",
+  "cliente_contacto": "Dr. Álvaro Sánchez",
+  "cliente_telefono": "+52 600 987 654",
+  "cliente_email": "asanchez@hospitalgeneral.com",
+  "vendedor": "Lucía Martínez",
+  "total_venta": 3998.9,
+  "codigo_producto": "KPS-50",
+  "nombre_producto": "Kit de Pruebas de Sangre",
+  "cantidad": 100,
+  "precio_unitario": 9.99
+},
+{
+  "_id": {
+    "$oid": "671ea9823f4252e4461e18ff"
+  },
+  "venta_id": 2,
+  "fecha_venta": {
+    "$date": "2023-09-25T00:00:00.000Z"
+  },
+  "cliente_nombre": "Clínica Salud y Vida",
+  "cliente_contacto": "Enfermera Laura Gómez",
+  "cliente_telefono": "+52 600 555 444",
+  "cliente_email": "lgomez@clinicasaludyvida.com",
+  "vendedor": "Pedro López",
+  "total_venta": 1499.95,
+  "codigo_producto": "VX-200",
+  "nombre_producto": "Detector de Veneno VX-200",
+  "cantidad": 5,
+  "precio_unitario": 299.99
+},
+{
+  "_id": {
+    "$oid": "674e011197e1c689cd25ee41"
+  },
+  "fecha_venta": {
+    "$date": "2024-12-02T12:48:49.637Z"
+  },
+  "nombre_producto": "Detector de Veneno VX-100",
+  "codigo_producto": "VX-100",
+  "cantidad": 2,
+  "precio_unitario": 199.99,
+  "total_venta": 399.98,
+  "vendedor": "Usuario Actual",
+  "cliente_nombre": "Hospital General",
+  "cliente_contacto": "Dr. Álvaro Sánchez",
+  "cliente_telefono": "+52 600 987 654",
+  "cliente_email": "asanchez@hospitalgeneral.com"
+}]

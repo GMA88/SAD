@@ -1,0 +1,46 @@
+[{
+  "_id": {
+    "$oid": "674e0385c1423e0702e90007"
+  },
+  "compra_id": "1001",
+  "proveedor": {
+    "nombre": "HOUSTON, TX, 77084, US",
+    "contacto": "Ana López",
+    "telefono": "+01 55 78 2713",
+    "email": "mfg@medfex.com",
+    "direccion": "18000 GROESCHKE ROAD B2 HOUSTON, TX, 77084, US"
+  },
+  "productos": [
+    {
+      "producto": "Tiras Reactivas",
+      "cantidad": 20,
+      "precio_unitario": 5,
+      "total": 100
+    }
+  ],
+  "fecha_compra": "2024-12-01",
+  "total_compra": 100
+},
+{
+  "_id": {
+    "$oid": "674e0385c1423e0702e90008"
+  },
+  "compra_id": "1002",
+  "proveedor": {
+    "nombre": "HealthEquipments Ltd.",
+    "contacto": "Roberto García",
+    "telefono": "+52 600 654 321",
+    "email": "rgarcia@healthequipments.com",
+    "direccion": "Monterrey, Nuevo León, México"
+  },
+  "productos": [
+    {
+      "producto": "Lancetas",
+      "cantidad": 3,
+      "precio_unitario": 2.5,
+      "total": 7.5
+    }
+  ],
+  "fecha_compra": "2024-12-01",
+  "total_compra": 7.5
+}]

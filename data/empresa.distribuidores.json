@@ -1,0 +1,22 @@
+[{
+  "_id": {
+    "$oid": "671ea7033f4252e4461e18e6"
+  },
+  "nombre": "Grupo Raco",
+  "contacto": "Marta Fernández",
+  "telefono": "+52 811 522 0721",
+  "email": "mfernandez@dismedicas.com",
+  "direccion": "Monterrey, N.L, México.",
+  "productos_distribuidos": "VX-100;VX-200;KPS-50"
+},
+{
+  "_id": {
+    "$oid": "671ea7033f4252e4461e18e7"
+  },
+  "nombre": "MAFE MEDICAL SERVICE",
+  "contacto": "Juan Herrera",
+  "telefono": "+52 477 195 2451",
+  "email": "compraenlinea@mafemedical.com",
+  "direccion": "León, Guanajuato México",
+  "productos_distribuidos": "VX-100;KPS-50"
+}]

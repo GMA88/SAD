@@ -1,0 +1,24 @@
+[{
+  "_id": {
+    "$oid": "671ea7153f4252e4461e18ee"
+  },
+  "nombre": "HOUSTON, TX, 77084, US",
+  "contacto": "Ana López",
+  "telefono": "+01 55 78 2713",
+  "email": "mfg@medfex.com",
+  "direccion": "18000 GROESCHKE ROAD B2 HOUSTON, TX, 77084, US",
+  "productos_suministrados": "Tiras Reactivas",
+  "cantidad": "20"
+},
+{
+  "_id": {
+    "$oid": "671ea7153f4252e4461e18ef"
+  },
+  "nombre": "HealthEquipments Ltd.",
+  "contacto": "Roberto García",
+  "telefono": "+52 600 654 321",
+  "email": "rgarcia@healthequipments.com",
+  "direccion": "Monterrey, Nuevo León, México",
+  "productos_suministrados": "Lancetas",
+  "cantidad": "3"
+}]

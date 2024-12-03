@@ -1,0 +1,30 @@
+[{
+  "_id": {
+    "$oid": "674ca9742e044582d5a771dc"
+  },
+  "descripcion": "Compra de equipos médicos",
+  "tipo": "Egreso",
+  "monto": 15000,
+  "fecha": "2024-01-15",
+  "responsable": "Luis Pérez"
+},
+{
+  "_id": {
+    "$oid": "674ca9742e044582d5a771dd"
+  },
+  "descripcion": "Pago de nómina mensual",
+  "tipo": "Egreso",
+  "monto": 30000,
+  "fecha": "2024-01-31",
+  "responsable": "María Gómez"
+},
+{
+  "_id": {
+    "$oid": "674ca9742e044582d5a771de"
+  },
+  "descripcion": "Venta de dispositivos médicos",
+  "tipo": "Ingreso",
+  "monto": 50000,
+  "fecha": "2024-01-20",
+  "responsable": "Carlos Rivera"
+}]

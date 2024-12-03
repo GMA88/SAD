@@ -1,0 +1,28 @@
+[{
+  "_id": {
+    "$oid": "671ea5e73f4252e4461e18e0"
+  },
+  "nombre_producto": "Detector de Veneno VX-100",
+  "codigo": "VX-100",
+  "categoria": "Dispositivos Médicos",
+  "cantidad_disponible": 200,
+  "precio_unitario": 199.99,
+  "proveedor_nombre": "MedSupply Co.",
+  "fecha_ultima_compra": {
+    "$date": "2023-08-10T00:00:00.000Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "671ea5e73f4252e4461e18e1"
+  },
+  "nombre_producto": "Kit de Pruebas de Sangre",
+  "codigo": "KPS-50",
+  "categoria": "Consumibles",
+  "cantidad_disponible": 500,
+  "precio_unitario": 9.99,
+  "proveedor_nombre": "HealthEquipments Ltd.",
+  "fecha_ultima_compra": {
+    "$date": "2023-09-05T00:00:00.000Z"
+  }
+}]
