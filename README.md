@@ -278,3 +278,286 @@ Para soporte o sugerencias:
 
 **Versión**: 1.0.0  
 **Última actualización**: 2024
+
+---
+
+# 📱 SAD - Data Analysis System (English)
+
+An interactive web application developed in HTML, CSS, and JavaScript for data analysis, visualization, and processing. SAD provides an intuitive interface for working with complex datasets and generating visual reports.
+
+## ✨ Features
+
+- **Responsive Interface**: Design adaptable to mobile and desktop devices
+- **Data Analysis**: Tools to process and analyze information
+- **Interactive Visualization**: Dynamic charts and dashboards
+- **Report Export**: Download results in multiple formats
+- **Data Management**: Import, filter, and transform data
+- **Dark/Light Theme**: Customizable display mode
+
+## 🛠️ Technologies
+
+- **HTML5**: Structure and semantics
+- **CSS3**: Responsive design and animations
+- **JavaScript (ES6+)**: Interactive functionality
+- **Libraries**:
+  - `Chart.js` - Chart visualization
+  - `DataTables` - Table manipulation
+  - `Axios` - AJAX calls
+  - `Bootstrap` - CSS framework (optional)
+
+## 📦 Prerequisites
+
+- Modern browser (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
+- Web server for local development
+- Code editor (VS Code, Sublime Text, etc.)
+
+## 🚀 Installation and Usage
+
+### Option 1: Direct Execution
+
+1. Clone the repository:
+```bash
+git clone https://github.com/GMA88/SAD.git
+cd SAD
+```
+
+2. Open in browser:
+```bash
+# On Linux/Mac
+open index.html
+
+# On Windows
+start index.html
+
+# Or use an HTTP server
+python -m http.server 8000
+# Then visit: http://localhost:8000
+```
+
+### Option 2: Use a Local Server
+
+```bash
+# With Python 3
+python -m http.server 8000
+
+# With Python 2
+python -m SimpleHTTPServer 8000
+
+# With Node.js (http-server)
+npx http-server
+
+# With Live Server (VS Code)
+# Install "Live Server" extension and right-click > Open with Live Server
+```
+
+## 📁 Project Structure
+
+```
+SAD/
+├── index.html                # Main page
+├── css/
+│   ├── style.css             # Main styles
+│   └── responsive.css        # Responsive design
+├── js/
+│   ├── main.js               # Main logic
+│   ├── data-processor.js      # Data processing
+│   └── charts.js             # Chart generation
+├── data/
+│   └── sample-data.json       # Sample data
+├── assets/
+│   ├── images/               # Images
+│   └── icons/                # Icons
+└── README.md                 # This file
+```
+
+## 📊 Quick Start
+
+### 1. Import Data
+
+```javascript
+// Load data from CSV/JSON file
+const data = await loadDataFile('data/sample-data.json');
+```
+
+### 2. Process Data
+
+```javascript
+// Filter, transform, and clean data
+const processedData = processDataset(data, {
+    removeNulls: true,
+    normalizeValues: true
+});
+```
+
+### 3. Visualize
+
+```javascript
+// Generate charts
+const chart = createChart('canvas-id', {
+    type: 'bar',
+    data: processedData,
+    options: { responsive: true }
+});
+```
+
+### 4. Export Results
+
+```javascript
+// Download reports
+exportToCSV(processedData, 'report.csv');
+exportToPDF(processedData, 'report.pdf');
+```
+
+## 🎨 Main Interface
+
+### Sections
+
+1. **Dashboard**: Overview of main data
+2. **Analysis**: Statistical analysis tools
+3. **Visualization**: Charts and visual representations
+4. **Reports**: Report generation and download
+5. **Settings**: Customization options
+
+## 🔧 Configuration
+
+Edit `config.js`:
+
+```javascript
+const CONFIG = {
+    theme: 'light',           // 'light' or 'dark'
+    language: 'en',           // Interface language
+    maxDataPoints: 10000,     // Maximum data points
+    chartType: 'bar',         // Default chart type
+    exportFormats: ['csv', 'json', 'pdf']
+};
+```
+
+## 📚 Main Functions
+
+### Statistical Analysis
+- Mean, Median, Standard Deviation
+- Percentiles and Quartiles
+- Correlation Analysis
+
+### Visualization
+- Bar Charts
+- Line Charts
+- Pie Charts
+- Histograms
+- Heatmaps
+
+### Filtering and Search
+- Multidimensional filters
+- Real-time search
+- Custom sorting
+
+## 💻 Development
+
+### Code Structure
+
+```html
+<!-- Main container -->
+<div id="app-container">
+    <header id="navbar"></header>
+    <main id="content"></main>
+    <footer id="footer"></footer>
+</div>
+
+<!-- Scripts -->
+<script src="js/main.js"></script>
+<script src="js/data-processor.js"></script>
+<script src="js/charts.js"></script>
+```
+
+### Add New Functionality
+
+```javascript
+// 1. Create module
+const MyModule = (() => {
+    const init = () => { /* ... */ };
+    return { init };
+})();
+
+// 2. Register in main.js
+document.addEventListener('DOMContentLoaded', () => {
+    MyModule.init();
+});
+```
+
+## 🧪 Testing
+
+To perform browser tests:
+
+1. Open console (F12)
+2. Verify no errors
+3. Test functions in console:
+```javascript
+// Test data loading
+loadDataFile('data/sample-data.json').then(console.log);
+
+// Test processing
+processDataset(sampleData, {}).then(console.log);
+```
+
+## 📱 Compatibility
+
+| Browser | Minimum Version |
+|---------|----------------|
+| Chrome  | 90+            |
+| Firefox | 88+            |
+| Safari  | 14+            |
+| Edge    | 90+            |
+
+## 🐛 Common Issues
+
+**Issue**: Charts not loading
+```javascript
+// Solution: Check Chart.js is loaded
+console.log(Chart); // Should return function
+```
+
+**Issue**: Data not importing
+```javascript
+// Solution: Check file format
+// JSON: { "data": [...] }
+// CSV: col1,col2,col3
+```
+
+## 📝 Contributing
+
+Contributions are welcome. Please:
+
+1. Fork the project
+2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📚 Resources
+
+- [MDN Web Docs](https://developer.mozilla.org/)
+- [Chart.js Documentation](https://www.chartjs.org/)
+- [DataTables Documentation](https://datatables.net/)
+- [HTML5 Specification](https://html.spec.whatwg.org/)
+
+## 📄 License
+
+This project is licensed under the [MIT](LICENSE) license. See the `LICENSE` file for details.
+
+## 👥 Author
+
+**GMA88** - [GitHub Profile](https://github.com/GMA88)
+
+## 💬 Support
+
+For support or suggestions:
+- Open an [Issue](https://github.com/GMA88/SAD/issues)
+- Create a [Discussion](https://github.com/GMA88/SAD/discussions)
+- Contact directly via GitHub
+
+---
+
+⭐ If this project was helpful to you, please consider giving it a star
+
+**Version**: 1.0.0  
+**Last Updated**: 2024
