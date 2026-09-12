@@ -55,7 +55,9 @@ Ejecutar aplicación:
 
 Bash
 python main.py
+
 👥 Autora
+
 Andrea Varela Medina
 
 GitHub: @GMA88
@@ -103,7 +105,9 @@ Run the app:
 
 Bash
 python main.py
+
 👥 Author
+
 Andrea Varela Medina
 
 GitHub: @GMA88
