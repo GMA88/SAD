@@ -146,9 +146,3 @@ Run app:
 
 Bash
 python main.py
-👥 Author
-Andrea Varela Medina
-
-GitHub: @GMA88
-
-LinkedIn: linkedin.com/in/andrea-varela-2058311a2
