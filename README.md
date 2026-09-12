@@ -109,3 +109,42 @@ Andrea Varela Medina
 GitHub: @GMA88
 
 LinkedIn: linkedin.com/in/andrea-varela-2058311a2
+
+---
+
+# 📋 SAD - Data Management System (English)
+
+Desktop application developed in Python and PyQt for browsing, updating, and managing records stored in MongoDB. The application provides dynamic table views with role-based access control.
+
+### 🎯 Key Features
+- **Role-Based Access Control:** View and edit privileges tailored to user credentials.
+- **CRUD Operations:** Search, filter, inline editing, and record updates.
+- **NoSQL Persistence:** Real-time collection queries and storage handled via MongoDB (`pymongo`).
+- **Native GUI:** Event-driven desktop interface designed with PyQt widgets.
+
+### 🛠 Tech Stack
+- **Language:** Python 3.x
+- **GUI Framework:** PyQt
+- **Database:** MongoDB (`pymongo`)
+- **Distribution:** PyInstaller (`main.spec`)
+
+### 🚀 Quick Start
+1. **Clone repository:**
+   ```bash
+   git clone [https://github.com/GMA88/SAD.git](https://github.com/GMA88/SAD.git)
+   cd SAD
+
+Install dependencies:
+
+Bash
+pip install PyQt5 pymongo pyinstaller
+Run app:
+
+Bash
+python main.py
+👥 Author
+Andrea Varela Medina
+
+GitHub: @GMA88
+
+LinkedIn: linkedin.com/in/andrea-varela-2058311a2
