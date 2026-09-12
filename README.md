@@ -1,563 +1,116 @@
-# 📱 SAD - Sistema de Análisis de Datos
+# 📊 SAD - Sistema de Análisis de Datos
 
-Una aplicación web interactiva desarrollada en HTML, CSS y JavaScript para el análisis, visualización y procesamiento de datos. SAD proporciona una interfaz intuitiva para trabajar con conjuntos de datos complejos y generar reportes visuales.
+Aplicación de escritorio de alto rendimiento desarrollada en Python y PyQt para la ingesta, procesamiento analítico y visualización interactiva de datos, con persistencia no relacional en MongoDB. SAD implementa una interfaz gráfica reactiva basada en Qt para explorar colecciones de datos, calcular métricas estadísticas descriptivas y renderizar dashboards analíticos en un entorno desacoplado y seguro.
 
-## ✨ Características
+---
 
-- **Interfaz Responsiva**: Diseño adaptable a dispositivos móviles y desktop
-- **Análisis de Datos**: Herramientas para procesar y analizar información
-- **Visualización Interactiva**: Gráficos dinámicos y dashboards
-- **Exportación de Reportes**: Descarga de resultados en múltiples formatos
-- **Gestión de Datos**: Importar, filtrar y transformar datos
-- **Tema Oscuro/Claro**: Modo de visualización personalizable
+## 🎯 Descripción del Proyecto
 
-## 🛠️ Tecnologías
+SAD optimiza el flujo de trabajo de análisis exploratorio de datos (EDA) conectando directamente la analítica de escritorio con bases de datos modernas orientadas a documentos:
+- **Persistencia NoSQL:** Almacenamiento, consulta y modelado de colecciones heterogéneas mediante MongoDB (PyMongo).
+- **Procesamiento Asíncrono de Datos:** Ingesta y depuración de registros fuera del hilo principal de la interfaz para evitar bloqueos visuales.
+- **Motor Estadístico:** Cálculo automático de métricas descriptivas, dispersión, percentiles y resúmenes analíticos.
+- **Visualización Interactiva Integrada:** Gráficos estadísticos embebidos directamente en lienzos de Qt mediante Matplotlib/Seaborn.
+- **Distribución de Escritorio:** Empaquetado ejecutable mediante PyInstaller para entornos de escritorio Windows/Linux.
 
-- **HTML5**: Estructura y semántica
-- **CSS3**: Diseño responsivo y animaciones
-- **JavaScript (ES6+)**: Funcionalidad interactiva
-- **Librerías**:
-  - `Chart.js` - Visualización de gráficos
-  - `DataTables` - Manipulación de tablas
-  - `Axios` - Llamadas AJAX
-  - `Bootstrap` - Framework CSS (opcional)
+---
 
-## 📦 Requisitos Previos
+## 🏗 Arquitectura del Sistema
 
-- Navegador moderno (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
-- Servidor web para desarrollo local
-- Editor de código (VS Code, Sublime Text, etc.)
+┌─────────────────────────────────────────────────────────┐│              Capa de Presentación (PyQt GUI)            ││  ┌───────────────────────────────────────────────────┐  ││  │ Ventanas, Widgets y Layouts (gui/ & app/)         │  ││  │ - Interfaz Modular PyQt (Signals & Slots)         │  ││  │ - Lienzos de Visualización Embebidos (Canvas Qt)  │  ││  └───────────────────────────────────────────────────┘  │└────────────────────────────┬────────────────────────────┘│Eventos / Hilos (QThread / Worker)│▼┌─────────────────────────────────────────────────────────┐│             Lógica de Negocio y Analítica               ││  ┌───────────────────────────────────────────────────┐  ││  │ Núcleo de Procesamiento (main.py / app/)          │  ││  │ - Normalización y Limpieza de Datasets            │  ││  │ - Motor Estadístico (Pandas / NumPy)              │  ││  │ - Generador Gráfico (Matplotlib / Seaborn)        │  ││  └───────────────────────────────────────────────────┘  │└────────────────────────────┬────────────────────────────┘│▼┌─────────────────────────────────────────────────────────┐│            Capa de Datos y Persistencia (NoSQL)         ││  ┌───────────────────────────────────────────────────┐  ││  │ Conexión y Gestión de Base de Datos (PyMongo)     │  ││  │ - Base de Datos: MongoDB                          │  ││  │ - Colecciones de Datos, Muestras y Resultados     │  ││  │ - Importación/Exportación de Archivos (data/)     │  ││  └───────────────────────────────────────────────────┘  │└─────────────────────────────────────────────────────────┘
+---
 
-## 🚀 Instalación y Uso
+## 🛠 Tecnologías Utilizadas
 
-### Opción 1: Ejecución Directa
+- **Lenguaje Principal:** Python 3.8+
+- **Framework de Interfaz Gráfica:** PyQt (Qt Widgets, Signal-Slot Architecture)
+- **Base de Datos:** MongoDB (gestión e integración vía `pymongo`)
+- **Procesamiento de Datos:** Pandas, NumPy
+- **Visualización Analítica:** Matplotlib (Backend Qt), Seaborn
+- **Distribución:** PyInstaller (especificación de empaquetado en `main.spec`)
+
+---
+
+## 📁 Estructura del Repositorio
+
+SAD/│├── app/                  # Lógica analítica, conexión a MongoDB y workers en segundo plano├── gui/                  # Componentes de la interfaz de usuario PyQt (vistas y controles)├── data/                 # Conjuntos de datos locales y archivos de intercambio├── main.py               # Punto de entrada y orquestación de la aplicación Qt├── main.spec             # Especificación para compilación de ejecutable con PyInstaller└── README.md             # Documentación del proyecto
+> **Nota sobre el entorno:** Se recomienda compilar y ejecutar el proyecto ignorando las carpetas temporales de compilación (`build/`, `dist/` y cachés `__pycache__`).
+
+---
+
+## 🚀 Instalación y Ejecución
+
+### Requisitos Previos
+- Contar con una instancia de **MongoDB** local o un clúster remoto (MongoDB Atlas).
+
+### Opción 1: Ejecución desde Código Fuente
 
 1. Clonar el repositorio:
-```bash
-git clone https://github.com/GMA88/SAD.git
+   ```bash
+   git clone [https://github.com/GMA88/SAD.git](https://github.com/GMA88/SAD.git)
+   cd SAD
+Crear y activar un entorno virtual:Bashpython -m venv venv
+# En Windows:
+venv\Scripts\activate
+# En Linux/macOS:
+source venv/bin/activate
+Instalar dependencias:Bashpip install PyQt5 pymongo pandas numpy matplotlib seaborn pyinstaller
+# O PyQt6 según el entorno configurado
+Configurar la URI de conexión de MongoDB en las variables de entorno o archivo de configuración:Bash# Ejemplo local
+export MONGO_URI="mongodb://localhost:27017/"
+Iniciar la aplicación:Bashpython main.py
+Opción 2: Compilación con PyInstallerPara generar el ejecutable binario de escritorio para distribución:Bashpyinstaller main.spec
+El archivo ejecutable listo para producción se creará dentro del directorio dist/.🎓 Competencias Técnicas DemostradasIngeniería de Software de Escritorio: Implementación de arquitectura orientada a eventos (Signals & Slots) con PyQt.Integración NoSQL: Diseño y gestión de colecciones en MongoDB para persistencia de datos analíticos.Ciencia y Exploración de Datos: Procesamiento de datos estructurados/semiestructurados y generación de dashboards gráficos.Empaquetado y Despliegue: Creación de artefactos ejecutables reproducibles con PyInstaller.👥 Autora & ContactoAndrea Varela MedinaLinkedIn: linkedin.com/in/andrea-varela-2058311a2  GitHub: @GMA88  Email: avarelam8@gmail.com  Ubicación: Salamanca, Guanajuato, México  📊 SAD - Data Analysis System (English)High-performance desktop software developed in Python and PyQt for dataset ingestion, statistical processing, and interactive visual reporting, backed by MongoDB for NoSQL persistence. SAD provides a Qt-driven graphical user interface to query collections, compute descriptive analytics, and render interactive dashboards in an isolated local runtime.🎯 Project OverviewSAD streamlines exploratory data analysis (EDA) workflows by connecting desktop performance with document-based database storage:NoSQL Persistence: Storage, querying, and schema flexibility using MongoDB (PyMongo).Responsive Data Processing: Multi-threaded ingestion and cleaning routines executed outside the GUI thread to ensure responsiveness.Statistical Engine: Automated evaluation of central tendency, dispersion, percentiles, and categorical metrics.Embedded Visualization: Statistical visualizations rendered directly onto Qt-integrated canvases using Matplotlib/Seaborn.Desktop Packaging: Standalone deployment support using PyInstaller for zero-dependency binary execution.🏗 System Architecture┌─────────────────────────────────────────────────────────┐
+│              Presentation Layer (PyQt GUI)              │
+│  ┌───────────────────────────────────────────────────┐  │
+│  │ Windows, Widgets & Layouts (gui/ & app/)          │  │
+│  │ - Modular PyQt Interface (Signals & Slots)        │  │
+│  │ - Embedded Data Canvases (Qt FigureCanvas)        │  │
+│  └───────────────────────────────────────────────────┘  │
+└────────────────────────────┬────────────────────────────┘
+                             │
+             Events / Threads (QThread / Worker)
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────┐
+│            Business Logic & Data Processing             │
+│  ┌───────────────────────────────────────────────────┐  │
+│  │ Analytical Engine (main.py / app/)                │  │
+│  │ - Data Cleaning & Schema Normalization            │  │
+│  │ - Statistical Analysis (Pandas / NumPy)           │  │
+│  │ - Visual Rendering Engine (Matplotlib / Seaborn)  │  │
+│  └───────────────────────────────────────────────────┘  │
+└────────────────────────────┬────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────┐
+│            Data Layer & Persistence (NoSQL)             │
+│  ┌───────────────────────────────────────────────────┐  │
+│  │ Database Integration & Storage (PyMongo)          │  │
+│  │ - Database Engine: MongoDB                        │  │
+│  │ - Dataset Collections, Samples & Results          │  │
+│  │ - Local Data Files & Exports (data/)              │  │
+│  └───────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────┘
+🛠 Tech StackCore Language: Python 3.8+GUI Framework: PyQt (Qt Widgets, Signal-Slot Architecture)Database: MongoDB (integrated via pymongo)Data Engineering: Pandas, NumPyVisual Analytics: Matplotlib (Qt Backend), SeabornPackaging & Build: PyInstaller (main.spec configuration file)📁 Repository StructureSAD/
+│
+├── app/                  # Analytics engine, MongoDB connectors, and thread workers
+├── gui/                  # PyQt interface components, custom layouts, and views
+├── data/                 # Local data assets and file exports
+├── main.py               # Application entry point and Qt loop orchestrator
+├── main.spec             # PyInstaller build specification file
+└── README.md             # Project documentation
+🚀 Setup & InstallationPrerequisitesA running local or remote MongoDB instance.Option 1: Running from SourceClone the repository:Bashgit clone [https://github.com/GMA88/SAD.git](https://github.com/GMA88/SAD.git)
 cd SAD
-```
-
-2. Abrir en el navegador:
-```bash
-# En Linux/Mac
-open index.html
-
-# En Windows
-start index.html
-
-# O usar un servidor HTTP
-python -m http.server 8000
-# Luego visitar: http://localhost:8000
-```
-
-### Opción 2: Usar un Servidor Local
-
-```bash
-# Con Python 3
-python -m http.server 8000
-
-# Con Python 2
-python -m SimpleHTTPServer 8000
-
-# Con Node.js (http-server)
-npx http-server
-
-# Con Live Server (VS Code)
-# Instalar extensión "Live Server" y hacer clic derecho > Open with Live Server
-```
-
-## 📁 Estructura del Proyecto
-
-```
-SAD/
-├── index.html                # Página principal
-├── css/
-│   ├── style.css             # Estilos principales
-│   └── responsive.css        # Diseño responsivo
-├── js/
-│   ├── main.js               # Lógica principal
-│   ├── data-processor.js      # Procesamiento de datos
-│   └── charts.js             # Generación de gráficos
-├── data/
-│   └── sample-data.json       # Datos de ejemplo
-├── assets/
-│   ├── images/               # Imágenes
-│   └── icons/                # Iconos
-└── README.md                 # Este archivo
-```
-
-## 📊 Uso Rápido
-
-### 1. Importar Datos
-
-```javascript
-// Cargar datos desde archivo CSV/JSON
-const data = await loadDataFile('data/sample-data.json');
-```
-
-### 2. Procesar Datos
-
-```javascript
-// Filtrar, transformar y limpiar datos
-const processedData = processDataset(data, {
-    removeNulls: true,
-    normalizeValues: true
-});
-```
-
-### 3. Visualizar
-
-```javascript
-// Generar gráficos
-const chart = createChart('canvas-id', {
-    type: 'bar',
-    data: processedData,
-    options: { responsive: true }
-});
-```
-
-### 4. Exportar Resultados
-
-```javascript
-// Descargar reportes
-exportToCSV(processedData, 'reporte.csv');
-exportToPDF(processedData, 'reporte.pdf');
-```
-
-## 🎨 Interfaz Principal
-
-### Secciones
-
-1. **Dashboard**: Vista general de los datos principales
-2. **Análisis**: Herramientas de análisis estadístico
-3. **Visualización**: Gráficos y representaciones visuales
-4. **Reportes**: Generación y descarga de informes
-5. **Configuración**: Opciones de personalización
-
-## 🔧 Configuración
-
-Editar `config.js`:
-
-```javascript
-const CONFIG = {
-    theme: 'light',           // 'light' o 'dark'
-    language: 'es',           // Idioma de la interfaz
-    maxDataPoints: 10000,     // Máximo de puntos de datos
-    chartType: 'bar',         // Tipo de gráfico por defecto
-    exportFormats: ['csv', 'json', 'pdf']
-};
-```
-
-## 📚 Funciones Principales
-
-### Análisis Estadístico
-- Media, Mediana, Desviación Estándar
-- Percentiles y Cuartiles
-- Análisis de Correlación
-
-### Visualización
-- Gráficos de Barras
-- Gráficos de Líneas
-- Gráficos Circulares
-- Histogramas
-- Heatmaps
-
-### Filtrado y Búsqueda
-- Filtros multidimensionales
-- Búsqueda en tiempo real
-- Ordenamiento personalizado
-
-## 💻 Desarrollo
-
-### Estructura de Código
-
-```html
-<!-- Contenedor principal -->
-<div id="app-container">
-    <header id="navbar"></header>
-    <main id="content"></main>
-    <footer id="footer"></footer>
-</div>
-
-<!-- Scripts -->
-<script src="js/main.js"></script>
-<script src="js/data-processor.js"></script>
-<script src="js/charts.js"></script>
-```
-
-### Agregar Nueva Funcionalidad
-
-```javascript
-// 1. Crear módulo
-const MyModule = (() => {
-    const init = () => { /* ... */ };
-    return { init };
-})();
-
-// 2. Registrar en main.js
-document.addEventListener('DOMContentLoaded', () => {
-    MyModule.init();
-});
-```
-
-## 🧪 Testing
-
-Para realizar pruebas en navegador:
-
-1. Abrir consola (F12)
-2. Verificar que no hay errores
-3. Probar funciones en consola:
-```javascript
-// Prueba de carga de datos
-loadDataFile('data/sample-data.json').then(console.log);
-
-// Prueba de procesamiento
-processDataset(sampleData, {}).then(console.log);
-```
-
-## 📱 Compatibilidad
-
-| Navegador | Versión Mínima |
-|-----------|----------------|
-| Chrome    | 90+            |
-| Firefox   | 88+            |
-| Safari    | 14+            |
-| Edge      | 90+            |
-
-## 🐛 Problemas Comunes
-
-**Problema**: Gráficos no se cargan
-```javascript
-// Solución: Verificar que Chart.js está cargado
-console.log(Chart); // Debe retornar función
-```
-
-**Problema**: Datos no se importan
-```javascript
-// Solución: Verificar formato del archivo
-// JSON: { "data": [...] }
-// CSV: col1,col2,col3
-```
-
-## 📝 Contribuciones
-
-Las contribuciones son bienvenidas. Por favor:
-
-1. Fork el proyecto
-2. Crear una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir un Pull Request
-
-## 📚 Recursos
-
-- [MDN Web Docs](https://developer.mozilla.org/)
-- [Chart.js Documentation](https://www.chartjs.org/)
-- [DataTables Documentation](https://datatables.net/)
-- [HTML5 Specification](https://html.spec.whatwg.org/)
-
-## 📄 Licencia
-
-Este proyecto está bajo la licencia [MIT](LICENSE). Ver archivo `LICENSE` para más detalles.
-
-## 👥 Autor
-
-**GMA88** - [GitHub Profile](https://github.com/GMA88)
-
-## 💬 Soporte
-
-Para soporte o sugerencias:
-- Abre un [Issue](https://github.com/GMA88/SAD/issues)
-- Crea una [Discussion](https://github.com/GMA88/SAD/discussions)
-- Contacta directamente mediante GitHub
-
----
-
-⭐ Si este proyecto te fue útil, considera darle una estrella
-
-**Versión**: 1.0.0  
-**Última actualización**: 2024
-
----
-
-# 📱 SAD - Data Analysis System (English)
-
-An interactive web application developed in HTML, CSS, and JavaScript for data analysis, visualization, and processing. SAD provides an intuitive interface for working with complex datasets and generating visual reports.
-
-## ✨ Features
-
-- **Responsive Interface**: Design adaptable to mobile and desktop devices
-- **Data Analysis**: Tools to process and analyze information
-- **Interactive Visualization**: Dynamic charts and dashboards
-- **Report Export**: Download results in multiple formats
-- **Data Management**: Import, filter, and transform data
-- **Dark/Light Theme**: Customizable display mode
-
-## 🛠️ Technologies
-
-- **HTML5**: Structure and semantics
-- **CSS3**: Responsive design and animations
-- **JavaScript (ES6+)**: Interactive functionality
-- **Libraries**:
-  - `Chart.js` - Chart visualization
-  - `DataTables` - Table manipulation
-  - `Axios` - AJAX calls
-  - `Bootstrap` - CSS framework (optional)
-
-## 📦 Prerequisites
-
-- Modern browser (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
-- Web server for local development
-- Code editor (VS Code, Sublime Text, etc.)
-
-## 🚀 Installation and Usage
-
-### Option 1: Direct Execution
-
-1. Clone the repository:
-```bash
-git clone https://github.com/GMA88/SAD.git
-cd SAD
-```
-
-2. Open in browser:
-```bash
-# On Linux/Mac
-open index.html
-
-# On Windows
-start index.html
-
-# Or use an HTTP server
-python -m http.server 8000
-# Then visit: http://localhost:8000
-```
-
-### Option 2: Use a Local Server
-
-```bash
-# With Python 3
-python -m http.server 8000
-
-# With Python 2
-python -m SimpleHTTPServer 8000
-
-# With Node.js (http-server)
-npx http-server
-
-# With Live Server (VS Code)
-# Install "Live Server" extension and right-click > Open with Live Server
-```
-
-## 📁 Project Structure
-
-```
-SAD/
-├── index.html                # Main page
-├── css/
-│   ├── style.css             # Main styles
-│   └── responsive.css        # Responsive design
-├── js/
-│   ├── main.js               # Main logic
-│   ├── data-processor.js      # Data processing
-│   └── charts.js             # Chart generation
-├── data/
-│   └── sample-data.json       # Sample data
-├── assets/
-│   ├── images/               # Images
-│   └── icons/                # Icons
-└── README.md                 # This file
-```
-
-## 📊 Quick Start
-
-### 1. Import Data
-
-```javascript
-// Load data from CSV/JSON file
-const data = await loadDataFile('data/sample-data.json');
-```
-
-### 2. Process Data
-
-```javascript
-// Filter, transform, and clean data
-const processedData = processDataset(data, {
-    removeNulls: true,
-    normalizeValues: true
-});
-```
-
-### 3. Visualize
-
-```javascript
-// Generate charts
-const chart = createChart('canvas-id', {
-    type: 'bar',
-    data: processedData,
-    options: { responsive: true }
-});
-```
-
-### 4. Export Results
-
-```javascript
-// Download reports
-exportToCSV(processedData, 'report.csv');
-exportToPDF(processedData, 'report.pdf');
-```
-
-## 🎨 Main Interface
-
-### Sections
-
-1. **Dashboard**: Overview of main data
-2. **Analysis**: Statistical analysis tools
-3. **Visualization**: Charts and visual representations
-4. **Reports**: Report generation and download
-5. **Settings**: Customization options
-
-## 🔧 Configuration
-
-Edit `config.js`:
-
-```javascript
-const CONFIG = {
-    theme: 'light',           // 'light' or 'dark'
-    language: 'en',           // Interface language
-    maxDataPoints: 10000,     // Maximum data points
-    chartType: 'bar',         // Default chart type
-    exportFormats: ['csv', 'json', 'pdf']
-};
-```
-
-## 📚 Main Functions
-
-### Statistical Analysis
-- Mean, Median, Standard Deviation
-- Percentiles and Quartiles
-- Correlation Analysis
-
-### Visualization
-- Bar Charts
-- Line Charts
-- Pie Charts
-- Histograms
-- Heatmaps
-
-### Filtering and Search
-- Multidimensional filters
-- Real-time search
-- Custom sorting
-
-## 💻 Development
-
-### Code Structure
-
-```html
-<!-- Main container -->
-<div id="app-container">
-    <header id="navbar"></header>
-    <main id="content"></main>
-    <footer id="footer"></footer>
-</div>
-
-<!-- Scripts -->
-<script src="js/main.js"></script>
-<script src="js/data-processor.js"></script>
-<script src="js/charts.js"></script>
-```
-
-### Add New Functionality
-
-```javascript
-// 1. Create module
-const MyModule = (() => {
-    const init = () => { /* ... */ };
-    return { init };
-})();
-
-// 2. Register in main.js
-document.addEventListener('DOMContentLoaded', () => {
-    MyModule.init();
-});
-```
-
-## 🧪 Testing
-
-To perform browser tests:
-
-1. Open console (F12)
-2. Verify no errors
-3. Test functions in console:
-```javascript
-// Test data loading
-loadDataFile('data/sample-data.json').then(console.log);
-
-// Test processing
-processDataset(sampleData, {}).then(console.log);
-```
-
-## 📱 Compatibility
-
-| Browser | Minimum Version |
-|---------|----------------|
-| Chrome  | 90+            |
-| Firefox | 88+            |
-| Safari  | 14+            |
-| Edge    | 90+            |
-
-## 🐛 Common Issues
-
-**Issue**: Charts not loading
-```javascript
-// Solution: Check Chart.js is loaded
-console.log(Chart); // Should return function
-```
-
-**Issue**: Data not importing
-```javascript
-// Solution: Check file format
-// JSON: { "data": [...] }
-// CSV: col1,col2,col3
-```
-
-## 📝 Contributing
-
-Contributions are welcome. Please:
-
-1. Fork the project
-2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📚 Resources
-
-- [MDN Web Docs](https://developer.mozilla.org/)
-- [Chart.js Documentation](https://www.chartjs.org/)
-- [DataTables Documentation](https://datatables.net/)
-- [HTML5 Specification](https://html.spec.whatwg.org/)
-
-## 📄 License
-
-This project is licensed under the [MIT](LICENSE) license. See the `LICENSE` file for details.
-
-## 👥 Author
-
-**GMA88** - [GitHub Profile](https://github.com/GMA88)
-
-## 💬 Support
-
-For support or suggestions:
-- Open an [Issue](https://github.com/GMA88/SAD/issues)
-- Create a [Discussion](https://github.com/GMA88/SAD/discussions)
-- Contact directly via GitHub
-
----
-
-⭐ If this project was helpful to you, please consider giving it a star
-
-**Version**: 1.0.0  
-**Last Updated**: 2024
+Initialize virtual environment:Bashpython -m venv venv
+# On Windows:
+venv\Scripts\activate
+# On Linux/macOS:
+source venv/bin/activate
+Install dependencies:Bashpip install PyQt5 pymongo pandas numpy matplotlib seaborn pyinstaller
+# Or PyQt6 depending on your local setup
+Set your MongoDB connection URI:Bashexport MONGO_URI="mongodb://localhost:27017/"
+Run application:Bashpython main.py
+Option 2: Building Standalone ExecutableTo compile a standalone binary using the repository specification:Bashpyinstaller main.spec
+The compiled output will be generated inside the dist/ directory.🎓 Key CompetenciesDesktop Application Architecture: Event-driven design with PyQt, decoupling 
+presentation from background workers.NoSQL Data Modeling: Document storage and query execution via MongoDB.Exploratory Data Analysis: Schema parsing, statistical routines, and dynamic canvas rendering.Application Distribution: Managing reproducible binary packaging using PyInstaller.👥 Author & ContactAndrea Varela MedinaLinkedIn: linkedin.com/in/andrea-varela-2058311a2  GitHub: @GMA88  Email: avarelam8@gmail.com  Location: Salamanca, Guanajuato, Mexico 
