@@ -1,7 +1,10 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
+from datetime import datetime
 
+# ========================
 # Esquemas para Usuarios
+# ========================
 class UsuarioBase(BaseModel):
     username: str
 
@@ -16,4 +19,58 @@ class UsuarioResponse(UsuarioBase):
     class Config:
         from_attributes = True
 
-# Puedes agregar más esquemas para Inventario y Ventas aquí después
+# ========================
+# Esquemas para Inventario
+# ========================
+class InventarioBase(BaseModel):
+    codigo: str
+    nombre_producto: str
+    cantidad_disponible: int
+    precio_unitario: float
+
+class InventarioCreate(InventarioBase):
+    pass
+
+class InventarioResponse(InventarioBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+# ========================
+# Esquemas para Ventas
+# ========================
+class VentaBase(BaseModel):
+    producto_id: int
+    cantidad: int
+    vendedor: str
+    cliente_nombre: str
+    cliente_contacto: str
+    cliente_telefono: str
+    cliente_email: str
+
+class VentaCreate(VentaBase):
+    pass
+
+class VentaResponse(VentaBase):
+    id: int
+    fecha_venta: datetime
+    precio_unitario: float
+    total_venta: float
+
+    class Config:
+        from_attributes = True
+
+# ========================
+# Esquemas para Finanzas
+# ========================
+class FinanzaResponse(BaseModel):
+    id: int
+    descripcion: str
+    tipo: str
+    monto: float
+    fecha: datetime
+    responsable: str
+
+    class Config:
+        from_attributes = True

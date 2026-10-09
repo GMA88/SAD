@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from api import models
 from api.database import engine
-from api.routers import usuarios
+from api.routers import usuarios, inventario, ventas
 
 # Esta línea le dice a SQLAlchemy que cree todas las tablas en SQLite
 models.Base.metadata.create_all(bind=engine)
@@ -12,8 +12,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Incluir las rutas de Usuarios
+# Incluir las rutas
 app.include_router(usuarios.router)
+app.include_router(inventario.router)
+app.include_router(ventas.router)
 
 @app.get("/")
 def read_root():
