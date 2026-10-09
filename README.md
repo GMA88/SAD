@@ -1,148 +1,110 @@
-# 📋 SAD - Sistema de Administración de Datos
+# ⚡ SAD ERP - Sistema de Administración y Analítica Empresarial
 
-Aplicación de escritorio desarrollada en Python y PyQt para la gestión, consulta y edición de registros almacenados en MongoDB. El sistema implementa una interfaz gráfica de tablas dinámicas con control de vistas y permisos según el tipo de usuario.
+Sistema Integral de Gestión Empresarial (ERP) modernizado a una arquitectura desacoplada de alto rendimiento: **Backend RESTful con FastAPI + SQLAlchemy (SQLite/PostgreSQL)** y **Frontend moderno con React + Vite**, complementado con **Dashboard de Inteligencia de Negocios (BI)** con Recharts y diagnósticos estratégicos asistidos por **Inteligencia Artificial**.
 
----
-
-## 🎯 Funcionalidades
-
-- **Autenticación y Permisos por Rol:** Vistas y niveles de edición personalizados según el perfil del usuario autenticado.
-- **Gestión de Datos (CRUD):** Visualización tabular, búsqueda, edición directa y actualización de registros.
-- **Persistencia NoSQL:** Conexión y sincronización de datos en tiempo real mediante MongoDB (PyMongo).
-- **Interfaz de Escritorio:** GUI interactiva desarrollada con componentes nativos de PyQt.
+> **Nota:** El proyecto conserva su versión original de escritorio en Python + PyQt5 y MongoDB, sirviendo como caso de estudio de modernización tecnológica hacia la web y análisis de datos en tiempo real.
 
 ---
 
-## 🛠 Tecnologías
+## 🚀 Características Principales
 
-- **Lenguaje:** Python 3.x
-- **Interfaz Gráfica:** PyQt
-- **Base de Datos:** MongoDB (`pymongo`)
-- **Empaquetado:** PyInstaller (`main.spec`)
+### 📊 Dashboard de Inteligencia de Negocios (BI)
+- **KPIs en tiempo real**: Ingresos totales, volumen de órdenes registradas, ticket promedio por transacción y monitoreo de stock crítico.
+- **Visualización de Datos**: Curvas de tendencias de facturación histórica y distribución de inventario utilizando componentes interactivos de `Recharts`.
+- **Diagnóstico AI**: Módulo analítico integrado (`/ai/reporte`) que genera resúmenes ejecutivos, detección de riesgos de desabasto y recomendaciones de crecimiento de negocio.
+
+### 📦 Gestión de Inventario (CRUD)
+- Catálogo de productos con código SKU, precio unitario y control de stock disponible.
+- Sistema de alertas automáticas para inventario bajo (< 5 unidades) o agotado.
+- Búsqueda dinámica en tiempo real por nombre de producto o código.
+- Registro y actualización mediante endpoints RESTful.
+
+### 🛒 Punto de Venta (POS) y Registro de Ventas
+- Registro de transacciones con validación de inventario en tiempo real.
+- Operaciones transaccionales seguras (ACID) con SQLAlchemy: deducción automática de stock y registro en libro de finanzas al confirmar una venta.
+- Historial detallado con fecha, datos del cliente y vendedor responsable.
+
+### 👥 Administración de Usuarios y Seguridad
+- Gestión de usuarios y control de acceso basado en roles (*Administrador*, *Gerente*, *Vendedor*).
+- Encriptación segura de contraseñas con SHA-256.
+
+---
+
+## 🛠 Stack Tecnológico
+
+| Capa | Tecnologías |
+|---|---|
+| **Frontend** | React 18, Vite, Lucide Icons, Recharts, CSS Glassmorphism |
+| **Backend** | Python 3.12, FastAPI, Pydantic v2, Uvicorn, SQLAlchemy |
+| **Base de Datos** | SQLite (preparado para migración a PostgreSQL) |
+| **Desktop Legacy** | Python 3.x, PyQt5, MongoDB (`pymongo`) |
 
 ---
 
 ## 📁 Estructura del Repositorio
 
+```text
 SAD/
-├── app/                  # Lógica de operaciones y conexión a MongoDB
-├── gui/                  # Interfaces de usuario, ventanas y tablas (PyQt)
-├── data/                 # Muestras y archivos de prueba locales
-├── main.py               # Punto de entrada de la aplicación
-├── main.spec             # Archivo de configuración para PyInstaller
+├── api/                     # Backend FastAPI
+│   ├── main.py              # Punto de entrada de la API y rutas raíz / AI / Seed
+│   ├── database.py          # Configuración del motor SQLAlchemy
+│   ├── models.py            # Modelos ORM (Usuarios, Inventario, Ventas, Finanzas)
+│   ├── schemas.py           # Validaciones de entrada y salida con Pydantic
+│   └── routers/             # Módulos de rutas desacopladas
+│       ├── inventario.py    # CRUD de productos y stock
+│       ├── ventas.py        # Transacciones de venta y deducción de existencias
+│       └── usuarios.py      # Autenticación y registro de personal
+├── frontend/                # Frontend Web SPA
+│   ├── src/
+│   │   ├── App.jsx          # Aplicación principal, navegación y modales
+│   │   ├── index.css        # Sistema de diseño Glassmorphism y temas oscuros
+│   │   └── main.jsx         # Punto de montaje React
+│   ├── package.json         # Dependencias (recharts, lucide-react, vite)
+│   └── vite.config.js       # Configuración del bundler
+├── app/                     # (Legacy) Módulos de escritorio
+├── gui/                     # (Legacy) Ventanas PyQt
+├── requirements.txt         # Dependencias de Python
 └── README.md
+```
 
 ---
 
-## 🚀 Instalación y Uso
+## ⚡ Guía de Instalación y Ejecución Local
 
-1. **Clonar el repositorio:**
-   ```bash
-   git clone [https://github.com/GMA88/SAD.git](https://github.com/GMA88/SAD.git)
-   cd SAD
-   
-Crear entorno e instalar dependencias:
-
-Bash
-python -m venv venv
-# En Windows:
-venv\Scripts\activate
-# En Linux/Mac:
-source venv/bin/activate
-
-pip install PyQt5 pymongo pyinstaller
-Ejecutar aplicación:
-
-Bash
-python main.py
-
-👥 Autora
-
-Andrea Varela Medina
-
-GitHub: @GMA88
-
-LinkedIn: linkedin.com/in/andrea-varela-2058311a2
-
-📋 SAD - Data Administration System (English)
-Desktop application built with Python and PyQt for managing, browsing, and editing database records stored in MongoDB. The system features a dynamic table interface with customized views and editing permissions based on user roles.
-
-🎯 Features
-Role-Based Access Control: Tailored views and edit permissions according to the user profile.
-
-CRUD Management: Tabular display, search, inline editing, and updating of database documents.
-
-NoSQL Persistence: Data connection and storage handling using MongoDB (PyMongo).
-
-Desktop UI: Responsive graphical interface built with PyQt widgets.
-
-🛠 Tech Stack
-Language: Python 3.x
-
-GUI Framework: PyQt
-
-Database: MongoDB (pymongo)
-
-Packaging: PyInstaller (main.spec)
-
-🚀 Setup & Execution
-Clone the repository:
-
-Bash
-git clone [https://github.com/GMA88/SAD.git](https://github.com/GMA88/SAD.git)
+### 1. Clonar el repositorio
+```bash
+git clone https://github.com/GMA88/SAD.git
 cd SAD
-Create virtual environment and install requirements:
+```
 
-Bash
+### 2. Iniciar el Backend (FastAPI)
+```bash
+# Crear y activar entorno virtual
 python -m venv venv
-# Windows:
-venv\Scripts\activate
-# Linux/Mac:
-source venv/bin/activate
+venv\Scripts\activate       # En Windows
+# source venv/bin/activate  # En Linux/macOS
 
-pip install PyQt5 pymongo pyinstaller
-Run the app:
+# Instalar dependencias
+pip install -r requirements.txt
 
-Bash
-python main.py
+# Iniciar servidor Uvicorn
+uvicorn api.main:app --reload --port 8000
+```
+> La documentación interactiva de Swagger UI estará disponible en: **http://127.0.0.1:8000/docs**
 
-👥 Author
-
-Andrea Varela Medina
-
-GitHub: @GMA88
-
-LinkedIn: linkedin.com/in/andrea-varela-2058311a2
+### 3. Iniciar el Frontend (React + Vite)
+En una nueva terminal:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+> Abre tu navegador en: **http://localhost:5173**
 
 ---
 
-# 📋 SAD - Data Management System (English)
+## 👥 Autora
 
-Desktop application developed in Python and PyQt for browsing, updating, and managing records stored in MongoDB. The application provides dynamic table views with role-based access control.
-
-### 🎯 Key Features
-- **Role-Based Access Control:** View and edit privileges tailored to user credentials.
-- **CRUD Operations:** Search, filter, inline editing, and record updates.
-- **NoSQL Persistence:** Real-time collection queries and storage handled via MongoDB (`pymongo`).
-- **Native GUI:** Event-driven desktop interface designed with PyQt widgets.
-
-### 🛠 Tech Stack
-- **Language:** Python 3.x
-- **GUI Framework:** PyQt
-- **Database:** MongoDB (`pymongo`)
-- **Distribution:** PyInstaller (`main.spec`)
-
-### 🚀 Quick Start
-1. **Clone repository:**
-   ```bash
-   git clone [https://github.com/GMA88/SAD.git](https://github.com/GMA88/SAD.git)
-   cd SAD
-
-Install dependencies:
-
-Bash
-pip install PyQt5 pymongo pyinstaller
-Run app:
-
-Bash
-python main.py
+**Andrea Varela Medina**
+- GitHub: [@GMA88](https://github.com/GMA88)
+- LinkedIn: [Andrea Varela](https://linkedin.com/in/andrea-varela-2058311a2)
