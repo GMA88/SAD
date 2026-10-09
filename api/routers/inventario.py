@@ -37,3 +37,27 @@ def obtener_producto(producto_id: int, db: Session = Depends(get_db)):
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     return producto
+
+@router.put("/{producto_id}", response_model=InventarioResponse)
+def actualizar_producto(producto_id: int, producto_update: InventarioCreate, db: Session = Depends(get_db)):
+    producto = db.query(Inventario).filter(Inventario.id == producto_id).first()
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    
+    for key, value in producto_update.model_dump().items():
+        setattr(producto, key, value)
+    
+    db.commit()
+    db.refresh(producto)
+    return producto
+
+@router.delete("/{producto_id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_producto(producto_id: int, db: Session = Depends(get_db)):
+    producto = db.query(Inventario).filter(Inventario.id == producto_id).first()
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    
+    db.delete(producto)
+    db.commit()
+    return None
+

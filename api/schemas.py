@@ -57,6 +57,7 @@ class VentaResponse(VentaBase):
     fecha_venta: datetime
     precio_unitario: float
     total_venta: float
+    producto: Optional[InventarioResponse] = None
 
     class Config:
         from_attributes = True
