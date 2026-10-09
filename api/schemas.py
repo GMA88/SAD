@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
@@ -15,9 +15,7 @@ class UsuarioCreate(UsuarioBase):
 class UsuarioResponse(UsuarioBase):
     id: int
     role: Optional[str] = None
-
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ========================
 # Esquemas para Inventario
@@ -33,9 +31,7 @@ class InventarioCreate(InventarioBase):
 
 class InventarioResponse(InventarioBase):
     id: int
-
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ========================
 # Esquemas para Ventas
@@ -58,9 +54,7 @@ class VentaResponse(VentaBase):
     precio_unitario: float
     total_venta: float
     producto: Optional[InventarioResponse] = None
-
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ========================
 # Esquemas para Finanzas
@@ -72,6 +66,4 @@ class FinanzaResponse(BaseModel):
     monto: float
     fecha: datetime
     responsable: str
-
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

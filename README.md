@@ -1,6 +1,13 @@
 # ⚡ SAD ERP - Sistema de Administración y Analítica Empresarial
 
+[![CI Pipeline](https://github.com/GMA88/SAD/actions/workflows/ci.yml/badge.svg)](https://github.com/GMA88/SAD/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688?logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![Pytest](https://img.shields.io/badge/Tests-Pytest%20Passing-10b981?logo=pytest&logoColor=white)
+
 Sistema Integral de Gestión Empresarial (ERP) modernizado a una arquitectura desacoplada de alto rendimiento: **Backend RESTful con FastAPI + SQLAlchemy (SQLite/PostgreSQL)** y **Frontend moderno con React + Vite**, complementado con **Dashboard de Inteligencia de Negocios (BI)** con Recharts y diagnósticos estratégicos asistidos por **Inteligencia Artificial**.
+
 
 > **Nota:** El proyecto conserva su versión original de escritorio en Python + PyQt5 y MongoDB, sirviendo como caso de estudio de modernización tecnológica hacia la web y análisis de datos en tiempo real.
 
