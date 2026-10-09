@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from api import models
 from api.database import engine
 from api.routers import usuarios, inventario, ventas
@@ -10,6 +11,15 @@ app = FastAPI(
     title="SAD API (ERP)", 
     description="API RESTful para el Sistema de Administración de Datos", 
     version="1.0.0"
+)
+
+# Configurar CORS (Permite que React se comunique con esta API)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"], # URL de Vite
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Incluir las rutas
