@@ -14,6 +14,19 @@ Sistema Integral de Gestión Empresarial (ERP) modernizado a una arquitectura de
 
 ---
 
+## 📸 Vista Previa del Sistema
+
+| 📊 Dashboard de BI en Tiempo Real | 🤖 Diagnóstico Ejecutivo con IA |
+|:---:|:---:|
+| ![Dashboard BI](docs/images/dashboard_bi.png) | ![Reporte AI](docs/images/ai_report.png) |
+
+| 📦 Control de Inventario y Stock | 🛒 Punto de Venta y Transacciones |
+|:---:|:---:|
+| ![Inventario](docs/images/inventario.png) | ![Ventas](docs/images/ventas.png) |
+
+---
+
+
 ## 🚀 Características Principales
 
 ### 📊 Dashboard de Inteligencia de Negocios (BI)
