@@ -5,21 +5,42 @@ from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
 from api import models
 
-# Configuración por defecto (Arquitectura neutral y agnóstica de proveedor)
-AI_CONFIG = {
-    "provider": "simulated",  # "simulated", "local_engine", "cloud_standard", "cloud_custom"
-    "api_key": "",
-    "model": "heuristic-engine-v1",
-    "base_url": ""
-}
+# Persistencia de configuración
+CONFIG_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "ai_config.json"))
+
+def load_ai_config() -> Dict[str, Any]:
+    default_config = {
+        "provider": "simulated",
+        "api_key": "",
+        "model": "heuristic-engine-v1",
+        "base_url": ""
+    }
+    if os.path.exists(CONFIG_FILE):
+        try:
+            with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                default_config.update(data)
+        except Exception:
+            pass
+    return default_config
+
+def save_ai_config(config: Dict[str, Any]):
+    try:
+        with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"Error guardando ai_config.json: {e}")
+
+# Configuración activa
+AI_CONFIG = load_ai_config()
 
 # Metadatos de arquitecturas soportadas (Genéricas, sin nombres comerciales de terceros)
 PROVIDERS_INFO = {
     "local_engine": {
         "name": "Servidor Local (On-Premise / Offline)",
-        "default_model": "local-model-default",
-        "default_url": "http://localhost:11434/v1",
-        "models": ["local-model-default", "lightweight-3b", "balanced-8b"],
+        "default_model": "qwen2.5-coder:7b",
+        "default_url": "http://127.0.0.1:11434/v1",
+        "models": ["qwen2.5-coder:7b", "llama3:latest", "phi4-mini:latest", "gemma2:2b"],
         "requires_key": False,
         "description": "Ejecución privada en hardware propio o red local. Máxima privacidad, sin envío de datos a servidores externos."
     },
@@ -97,8 +118,13 @@ async def call_llm(messages: List[Dict[str, str]], provider: str = None, api_key
     if prov == "simulated" or not prov:
         return generate_simulated_response(messages)
 
-    # Invocación mediante protocolo REST estándar de chat completions
-    endpoint = f"{url.rstrip('/')}/chat/completions"
+    # Normalizar URL para evitar errores comunes (ej: localhost sin /v1)
+    clean_url = url.rstrip('/')
+    if prov == "local_engine":
+        if not clean_url.endswith("/v1") and not clean_url.endswith("/api"):
+            clean_url = f"{clean_url}/v1"
+
+    endpoint = f"{clean_url}/chat/completions"
     headers = {"Content-Type": "application/json"}
     if key:
         headers["Authorization"] = f"Bearer {key}"
@@ -106,24 +132,72 @@ async def call_llm(messages: List[Dict[str, str]], provider: str = None, api_key
     payload = {
         "model": mod or PROVIDERS_INFO.get(prov, {}).get("default_model", "standard-model-v1"),
         "messages": messages,
-        "temperature": 0.6
+        "temperature": 0.6,
+        "stream": False
     }
 
+    # Para modelos locales se concede hasta 120s para permitir la carga a memoria VRAM/RAM
+    timeout_seconds = 120.0 if prov == "local_engine" else 45.0
+    client_timeout = httpx.Timeout(timeout_seconds, connect=10.0)
+
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=client_timeout) as client:
             res = await client.post(endpoint, headers=headers, json=payload)
             if res.status_code == 200:
                 data = res.json()
-                return data["choices"][0]["message"]["content"]
-            else:
-                return generate_simulated_response(
-                    messages, 
-                    f"Aviso del servicio ({res.status_code}): Generando respuesta mediante el motor analítico interno:"
-                )
+                if "choices" in data and len(data["choices"]) > 0:
+                    return data["choices"][0]["message"]["content"]
+                elif "message" in data:
+                    return data["message"].get("content", "")
+            
+            # Si el endpoint estándar dio 404 en servidor local, intentar endpoint nativo /api/chat
+            if prov == "local_engine" and res.status_code == 404:
+                ollama_url = clean_url.replace("/v1", "") + "/api/chat"
+                ollama_payload = {
+                    "model": mod,
+                    "messages": messages,
+                    "stream": False
+                }
+                res2 = await client.post(ollama_url, headers={"Content-Type": "application/json"}, json=ollama_payload)
+                if res2.status_code == 200:
+                    data2 = res2.json()
+                    return data2.get("message", {}).get("content", "")
+
+            # Error HTTP devuelto por el servicio
+            return generate_simulated_response(
+                messages, 
+                f"Aviso del servicio ({res.status_code}): Generando respuesta mediante el motor analítico interno:"
+            )
+
+    except httpx.ConnectError:
+        # Si falló conectando a localhost en Windows, intentar automáticamente 127.0.0.1
+        if "localhost" in endpoint:
+            try:
+                alt_endpoint = endpoint.replace("localhost", "127.0.0.1")
+                async with httpx.AsyncClient(timeout=client_timeout) as client:
+                    alt_res = await client.post(alt_endpoint, headers=headers, json=payload)
+                    if alt_res.status_code == 200:
+                        alt_data = alt_res.json()
+                        if "choices" in alt_data and len(alt_data["choices"]) > 0:
+                            return alt_data["choices"][0]["message"]["content"]
+            except Exception:
+                pass
+        return generate_simulated_response(
+            messages,
+            f"No se pudo conectar con el endpoint local en {clean_url}. Verifica que el servicio esté ejecutándose:"
+        )
+
+    except httpx.TimeoutException:
+        return generate_simulated_response(
+            messages,
+            f"El modelo '{mod}' tardó más de {int(timeout_seconds)}s en responder (puede estar cargándose en memoria):"
+        )
+
     except Exception as e:
+        err_msg = str(e) or type(e).__name__
         return generate_simulated_response(
             messages, 
-            f"Aviso de conexión con el endpoint ({str(e)}). Respuesta generada localmente:"
+            f"Aviso de conexión con el endpoint ({err_msg}). Respuesta generada localmente:"
         )
 
 def generate_simulated_response(messages: List[Dict[str, str]], prefix_note: str = "") -> str:

@@ -10,3 +10,5 @@ dist/
 .pytest_cache/
 node_modules/
 *.log
+ai_config.json
+api/ai_config.json

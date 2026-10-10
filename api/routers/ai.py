@@ -61,6 +61,9 @@ def update_ai_config(config: AIConfigRequest):
     default_url = ai_service.PROVIDERS_INFO[config.provider].get("default_url", "")
     ai_service.AI_CONFIG["base_url"] = config.base_url.strip() if config.base_url else default_url
 
+    # Persistir configuración en disco
+    ai_service.save_ai_config(ai_service.AI_CONFIG)
+
     return {
         "message": f"Configuración de IA actualizada a '{ai_service.PROVIDERS_INFO[config.provider]['name']}'",
         "provider": ai_service.AI_CONFIG["provider"],

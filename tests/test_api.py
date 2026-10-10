@@ -155,27 +155,32 @@ def test_reporte_ai():
     assert "proyeccion_crecimiento" in data
 
 def test_ai_configuracion_multi_proveedor():
-    # 1. Obtener lista de proveedores soportados
+    # 1. Obtener lista de proveedores y guardar estado previo
     resp = client.get("/ai/config")
     assert resp.status_code == 200
+    prev_config = resp.json()["current"]
     providers = resp.json()["providers"]
     assert "local_engine" in providers
     assert "cloud_standard" in providers
     assert "cloud_custom" in providers
     assert "simulated" in providers
 
-    # 2. Configurar Servicio Cloud Estándar
-    update_resp = client.post("/ai/config", json={
-        "provider": "cloud_standard",
-        "api_key": "sk-test12345678",
-        "model": "standard-model-v1"
-    })
-    assert update_resp.status_code == 200
-    assert update_resp.json()["provider"] == "cloud_standard"
-
-    # 3. Volver a modo simulado para pruebas seguras
-    reset_resp = client.post("/ai/config", json={"provider": "simulated"})
-    assert reset_resp.status_code == 200
+    try:
+        # 2. Configurar Servicio Cloud Estándar
+        update_resp = client.post("/ai/config", json={
+            "provider": "cloud_standard",
+            "api_key": "sk-test12345678",
+            "model": "standard-model-v1"
+        })
+        assert update_resp.status_code == 200
+        assert update_resp.json()["provider"] == "cloud_standard"
+    finally:
+        # 3. Restaurar estado previo
+        client.post("/ai/config", json={
+            "provider": prev_config.get("provider", "local_engine"),
+            "model": prev_config.get("model", ""),
+            "base_url": prev_config.get("base_url", "")
+        })
 
 
 def test_ai_chat_asistente():
