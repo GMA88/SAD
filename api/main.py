@@ -60,13 +60,13 @@ def seed_data(db: Session = Depends(get_db)):
 
     # 2. Crear productos de prueba si no existen
     productos_base = [
-        {"codigo": "PRD-001", "nombre_producto": "Laptop ThinkPad Pro 16", "cantidad_disponible": 14, "precio_unitario": 1250.0},
-        {"codigo": "PRD-002", "nombre_producto": "Monitor Dell UltraSharp 27", "cantidad_disponible": 4, "precio_unitario": 380.0},
+        {"codigo": "PRD-001", "nombre_producto": "Laptop Profesional 16 Ultra", "cantidad_disponible": 14, "precio_unitario": 1250.0},
+        {"codigo": "PRD-002", "nombre_producto": "Monitor Panorámico 27 4K", "cantidad_disponible": 4, "precio_unitario": 380.0},
         {"codigo": "PRD-003", "nombre_producto": "Teclado Mecánico RGB Pro", "cantidad_disponible": 28, "precio_unitario": 95.0},
         {"codigo": "PRD-004", "nombre_producto": "Mouse Ergonómico Inalámbrico", "cantidad_disponible": 3, "precio_unitario": 55.0},
         {"codigo": "PRD-005", "nombre_producto": "Silla Ergonómica Mesh Office", "cantidad_disponible": 8, "precio_unitario": 240.0},
         {"codigo": "PRD-006", "nombre_producto": "Auriculares Cancelación Ruido", "cantidad_disponible": 19, "precio_unitario": 150.0},
-        {"codigo": "PRD-007", "nombre_producto": "Hub USB-C 8 en 1 Thunderbolt", "cantidad_disponible": 2, "precio_unitario": 65.0}
+        {"codigo": "PRD-007", "nombre_producto": "Hub USB-C 8 en 1 Multipuerto", "cantidad_disponible": 2, "precio_unitario": 65.0}
     ]
 
     for p in productos_base:

@@ -12,7 +12,7 @@ import {
   Plus,
   Trash2,
   RefreshCw,
-  Sparkles,
+  BrainCircuit,
   Search,
   X,
   CheckCircle,
@@ -66,13 +66,14 @@ function App() {
   const [baseUrlInput, setBaseUrlInput] = useState('')
   const [savingConfig, setSavingConfig] = useState(false)
 
-  // Chatbot Copilot
+  // Asistente Virtual
   const [chatMessages, setChatMessages] = useState([
     {
       role: 'assistant',
-      content: '¡Hola! Soy **SAD Copilot**, tu asistente inteligente con acceso a los datos en tiempo real de este ERP. ¿En qué te puedo ayudar hoy? Puedes consultarme sobre ventas, stock crítico, redactar correos a clientes o pedirme un análisis comercial.'
+      content: '¡Hola! Soy el **Asistente Virtual de SAD ERP**, tu apoyo para la gestión y análisis de datos del negocio. ¿En qué te puedo ayudar hoy? Puedes consultarme sobre ventas, stock crítico, redactar correos a clientes o pedirme un análisis comercial.'
     }
   ])
+
   const [chatInput, setChatInput] = useState('')
   const [loadingChat, setLoadingChat] = useState(false)
   const chatEndRef = useRef(null)
@@ -140,10 +141,11 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (activeTab === 'copilot') {
+    if (activeTab === 'asistente') {
       chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
   }, [chatMessages, activeTab])
+
 
   // Cargar datos de demostración
   const handleSeedData = async () => {
@@ -194,7 +196,7 @@ function App() {
     }
   }
 
-  // Enviar mensaje al Copilot
+  // Enviar mensaje al Asistente Virtual
   const handleSendMessage = async (textToSend = null) => {
     const query = (textToSend || chatInput).trim()
     if (!query) return
@@ -354,7 +356,7 @@ function App() {
   }
 
   // Generar Reporte AI
-  const handleOpenAiReport = async () => {
+  const handleGenerateReportModal = async () => {
     setShowAiModal(true)
     setLoadingAi(true)
     try {
@@ -429,8 +431,8 @@ function App() {
           <a className={`nav-item ${activeTab === 'usuarios' ? 'active' : ''}`} onClick={() => setActiveTab('usuarios')}>
             <Users size={20} /> Usuarios ({usuarios.length})
           </a>
-          <a className={`nav-item ${activeTab === 'copilot' ? 'active' : ''}`} onClick={() => setActiveTab('copilot')}>
-            <Bot size={20} /> Copilot IA <span className="badge badge-info" style={{fontSize: '10px', padding: '2px 6px'}}>Nuevo</span>
+          <a className={`nav-item ${activeTab === 'asistente' ? 'active' : ''}`} onClick={() => setActiveTab('asistente')}>
+            <Bot size={20} /> Asistente Virtual <span className="badge badge-info" style={{fontSize: '10px', padding: '2px 6px'}}>Nuevo</span>
           </a>
           <a className={`nav-item ${activeTab === 'configuracion' ? 'active' : ''}`} onClick={() => setActiveTab('configuracion')}>
             <Sliders size={20} /> Configuración IA
@@ -473,11 +475,12 @@ function App() {
                 <button className="btn btn-secondary" onClick={fetchData} title="Refrescar">
                   <RefreshCw size={16} /> Refrescar
                 </button>
-                <button className="btn btn-primary" onClick={handleOpenAiReport}>
-                  <Sparkles size={16} /> Generar Reporte AI
+                <button className="btn btn-primary" onClick={handleGenerateReportModal}>
+                  <BrainCircuit size={16} /> Generar Reporte AI
                 </button>
               </div>
             </div>
+
 
             {/* KPIs */}
             <div className="dashboard-grid">
@@ -585,8 +588,8 @@ function App() {
           </>
         )}
 
-        {/* ================= PESTAÑA: COPILOT IA (CHATBOT) ================= */}
-        {activeTab === 'copilot' && (
+        {/* ================= PESTAÑA: ASISTENTE VIRTUAL ================= */}
+        {activeTab === 'asistente' && (
           <div className="glass-panel chat-wrapper">
             <div className="chat-header">
               <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
@@ -594,7 +597,7 @@ function App() {
                   <Bot size={22} />
                 </div>
                 <div>
-                  <h2 style={{fontSize: '18px', fontWeight: 600, color: '#fff'}}>SAD Copilot — Asistente de Negocio</h2>
+                  <h2 style={{fontSize: '18px', fontWeight: 600, color: '#fff'}}>Asistente Virtual — SAD Intelligence</h2>
                   <div style={{fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px'}}>
                     <span style={{display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#10b981'}}></span>
                     Conectado con {activeProviderMeta.name || 'Motor Local'} ({aiConfig.current.model})
@@ -660,7 +663,7 @@ function App() {
             >
               <input 
                 type="text" 
-                placeholder="Pregúntale a SAD Copilot sobre inventario, ventas, clientes o reportes..."
+                placeholder="Haz una consulta sobre inventario, ventas, clientes o reportes..."
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 disabled={loadingChat}
@@ -672,6 +675,7 @@ function App() {
           </div>
         )}
 
+
         {/* ================= PESTAÑA: CONFIGURACIÓN IA ================= */}
         {activeTab === 'configuracion' && (
           <div className="glass-panel table-panel">
@@ -679,7 +683,7 @@ function App() {
               <div>
                 <h2>Configuración de Inteligencia Artificial (BYOM)</h2>
                 <p style={{color: 'var(--text-muted)', fontSize: '14px'}}>
-                  Elige entre correr modelos locales gratuitos y privados (Ollama) o conectar APIs en la nube (Gemini, Claude, DeepSeek, NVIDIA, etc.)
+                  Elige entre inferencia local autónoma (servidor on-premise), pasarelas REST estándar o gateways corporativos privados.
                 </p>
               </div>
               <div className="badge badge-success" style={{padding: '6px 14px', fontSize: '13px'}}>
@@ -741,12 +745,8 @@ function App() {
                     onChange={(e) => setApiKeyInput(e.target.value)}
                   />
                   <span style={{fontSize: '12px', color: 'var(--text-muted)'}}>
-                    {selectedProvider === 'gemini' && 'Obtén tu clave gratis sin tarjeta en https://aistudio.google.com'}
-                    {selectedProvider === 'deepseek' && 'Obtén tu clave en https://platform.deepseek.com'}
-                    {selectedProvider === 'claude' && 'Obtén tu clave en https://console.anthropic.com'}
-                    {selectedProvider === 'openai' && 'Obtén tu clave en https://platform.openai.com'}
-                    {selectedProvider === 'groq' && 'Obtén tu clave gratuita y rápida en https://console.groq.com'}
-                    {selectedProvider === 'nvidia' && 'Obtén créditos de prueba en https://build.nvidia.com'}
+                    {selectedProvider === 'cloud_standard' && 'Ingresa el token o clave provista por tu servicio de inferencia estándar.'}
+                    {selectedProvider === 'cloud_custom' && 'Ingresa el token de autorización configurado para el gateway interno.'}
                   </span>
                 </div>
               )}
@@ -757,7 +757,7 @@ function App() {
                   <input 
                     type="text"
                     className="form-control"
-                    placeholder="Ej: llama3.2, gemini-1.5-flash, deepseek-chat"
+                    placeholder="Ej: standard-model-v1, high-performance-v1, balanced-8b"
                     value={modelInput}
                     onChange={(e) => setModelInput(e.target.value)}
                     required
@@ -1227,7 +1227,7 @@ function App() {
           <div className="modal-content" style={{maxWidth: '680px'}} onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                <Sparkles size={24} style={{color: 'var(--accent)'}} />
+                <BrainCircuit size={24} style={{color: 'var(--accent)'}} />
                 <div>
                   <h2>Reporte Ejecutivo con Inteligencia Artificial</h2>
                   <div style={{fontSize: '12px', color: 'var(--text-muted)'}}>

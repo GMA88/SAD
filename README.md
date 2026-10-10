@@ -2,11 +2,11 @@
 
 [![CI Pipeline](https://github.com/GMA88/SAD/actions/workflows/ci.yml/badge.svg)](https://github.com/GMA88/SAD/actions/workflows/ci.yml)
 
-![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688?logo=fastapi&logoColor=white)
-![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)
-![Pytest](https://img.shields.io/badge/Tests-Pytest%20Passing-10b981?logo=pytest&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12-3776AB)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688)
+![React](https://img.shields.io/badge/React-18-222222)
+![Docker](https://img.shields.io/badge/Docker-Ready-1d4ed8)
+![Pytest](https://img.shields.io/badge/Tests-Pytest%20Passing-10b981)
 
 Sistema Integral de Gestión Empresarial (ERP) modernizado a una arquitectura desacoplada de alto rendimiento: **Backend RESTful con FastAPI + SQLAlchemy (SQLite/PostgreSQL)** y **Frontend moderno con React + Vite**, complementado con **Dashboard de Inteligencia de Negocios (BI)** con Recharts y diagnósticos estratégicos asistidos por **Inteligencia Artificial**.
 
@@ -20,9 +20,9 @@ Sistema Integral de Gestión Empresarial (ERP) modernizado a una arquitectura de
 |:---:|:---:|
 | ![Dashboard BI](docs/images/dashboard_bi.png) | ![Reporte AI](docs/images/ai_report.png) |
 
-| 💬 Copilot IA (Chatbot Contextual) | ⚙️ Configuración Multi-IA (BYOM) |
+| 💬 Asistente Virtual (Chatbot Contextual) | ⚙️ Configuración Multi-IA (BYOM) |
 |:---:|:---:|
-| ![Copilot IA](docs/images/copilot_chat.png) | ![Configuración IA](docs/images/ai_config.png) |
+| ![Asistente Virtual](docs/images/asistente_chat.png) | ![Configuración IA](docs/images/ai_config.png) |
 
 | 📦 Control de Inventario y Stock | 🛒 Punto de Venta y Transacciones |
 |:---:|:---:|
@@ -33,12 +33,12 @@ Sistema Integral de Gestión Empresarial (ERP) modernizado a una arquitectura de
 
 ## 🚀 Características Principales
 
-### 🤖 Asistente Inteligente "SAD Copilot" y Arquitectura Multi-IA (BYOM)
+### 🤖 Asistente Virtual y Arquitectura Multi-IA (BYOM)
 - **Chatbot Asistente con Contexto Vivo**: Conectado directamente a la base de datos empresarial. Responde en lenguaje natural preguntas sobre ingresos, rotura de inventario, mejores clientes y redacción de comunicaciones comerciales.
-- **Soporte Híbrido Multi-Proveedor (Local + Cloud)**:
-  - **IA Local (100% privada y gratuita)**: Ollama (`llama3.2`, `deepseek-r1`, `phi3.5`, `mistral`, `gemma2`).
-  - **APIs Cloud**: Google Gemini (`gemini-1.5-flash`), Anthropic Claude (`claude-3-5-haiku`), DeepSeek (`deepseek-chat`), NVIDIA NIM (`meta/llama-3.1-70b`), Zhipu GLM (`glm-4-flash`), Groq (`llama-3.3-70b`) y OpenAI (`gpt-4o-mini`).
-  - **Motor Autónomo / Fallback**: En caso de no contar con conexión a internet o claves externas, el sistema opera con un motor heurístico interno sin interrumpir el flujo.
+- **Soporte Híbrido Multi-Arquitectura (Local On-Premise + Cloud Gateway)**:
+  - **Inferencia Local On-Premise (100% privada y offline)**: Compatible con motores y servidores locales ejecutados en hardware propio sin dependencias externas.
+  - **Pasarelas Cloud y Gateways Corporativos**: Integración mediante la especificación abierta estándar REST HTTP para conectar proxies corporativos o servicios de inferencia externos.
+  - **Motor Autónomo Heurístico (Sin Conexión)**: Motor analítico nativo integrado en el backend que opera de forma autónoma sin claves externas ni internet.
 - **Diagnóstico Ejecutivo Generativo**: Módulo (`/ai/reporte`) que analiza en tiempo real los patrones de venta y stock para sugerir estrategias accionables de crecimiento y alertas de compras.
 
 ### 📊 Dashboard de Inteligencia de Negocios (BI)

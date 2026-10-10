@@ -159,29 +159,27 @@ def test_ai_configuracion_multi_proveedor():
     resp = client.get("/ai/config")
     assert resp.status_code == 200
     providers = resp.json()["providers"]
-    assert "local_ollama" in providers
-    assert "gemini" in providers
-    assert "claude" in providers
-    assert "deepseek" in providers
-    assert "nvidia" in providers
-    assert "glm" in providers
-    assert "groq" in providers
+    assert "local_engine" in providers
+    assert "cloud_standard" in providers
+    assert "cloud_custom" in providers
+    assert "simulated" in providers
 
-    # 2. Configurar DeepSeek
+    # 2. Configurar Servicio Cloud Estándar
     update_resp = client.post("/ai/config", json={
-        "provider": "deepseek",
+        "provider": "cloud_standard",
         "api_key": "sk-test12345678",
-        "model": "deepseek-chat"
+        "model": "standard-model-v1"
     })
     assert update_resp.status_code == 200
-    assert update_resp.json()["provider"] == "deepseek"
+    assert update_resp.json()["provider"] == "cloud_standard"
 
     # 3. Volver a modo simulado para pruebas seguras
     reset_resp = client.post("/ai/config", json={"provider": "simulated"})
     assert reset_resp.status_code == 200
 
-def test_ai_chat_copilot():
-    # Validar que el Copilot interactúe respondiendo consultas sobre el ERP
+
+def test_ai_chat_asistente():
+    # Validar que el Asistente Virtual interactúe respondiendo consultas sobre el ERP
     chat_payload = {
         "messages": [
             {"role": "user", "content": "¿Cuáles son los productos con alerta de stock bajo?"}

@@ -5,87 +5,47 @@ from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
 from api import models
 
-# Configuración por defecto
+# Configuración por defecto (Arquitectura neutral y agnóstica de proveedor)
 AI_CONFIG = {
-    "provider": "simulated",  # "simulated", "local_ollama", "gemini", "openai", "claude", "deepseek", "nvidia", "glm", "groq"
+    "provider": "simulated",  # "simulated", "local_engine", "cloud_standard", "cloud_custom"
     "api_key": "",
-    "model": "gemini-1.5-flash",
+    "model": "heuristic-engine-v1",
     "base_url": ""
 }
 
-# Metadatos de proveedores soportados
+# Metadatos de arquitecturas soportadas (Genéricas, sin nombres comerciales de terceros)
 PROVIDERS_INFO = {
-    "local_ollama": {
-        "name": "Ollama (Local / On-Premise)",
-        "default_model": "llama3.2",
+    "local_engine": {
+        "name": "Servidor Local (On-Premise / Offline)",
+        "default_model": "local-model-default",
         "default_url": "http://localhost:11434/v1",
-        "models": ["llama3.2", "llama3.1", "deepseek-r1:1.5b", "deepseek-r1:8b", "phi3.5", "mistral", "gemma2"],
+        "models": ["local-model-default", "lightweight-3b", "balanced-8b"],
         "requires_key": False,
-        "description": "100% privado y gratuito. Corre en tu propio procesador o tarjeta gráfica sin enviar datos a la nube."
+        "description": "Ejecución privada en hardware propio o red local. Máxima privacidad, sin envío de datos a servidores externos."
     },
-    "gemini": {
-        "name": "Google Gemini",
-        "default_model": "gemini-1.5-flash",
-        "default_url": "https://generativelanguage.googleapis.com/v1beta/openai",
-        "models": ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash-exp"],
+    "cloud_standard": {
+        "name": "Servicio Cloud Estándar (REST API)",
+        "default_model": "standard-model-v1",
+        "default_url": "https://api.inference-cloud.net/v1",
+        "models": ["standard-model-v1", "high-performance-v1", "fast-model-v1"],
         "requires_key": True,
-        "description": "API oficial de Google. Cuenta con plan gratuito generoso desde Google AI Studio (sin tarjeta)."
+        "description": "Conexión a proveedores externos mediante la especificación abierta estándar de inferencia (HTTP POST)."
     },
-    "deepseek": {
-        "name": "DeepSeek",
-        "default_model": "deepseek-chat",
-        "default_url": "https://api.deepseek.com/v1",
-        "models": ["deepseek-chat", "deepseek-reasoner"],
+    "cloud_custom": {
+        "name": "Endpoint Personalizado (Gateway Corporativo)",
+        "default_model": "custom-enterprise-model",
+        "default_url": "https://api.ai-gateway.internal/v1",
+        "models": ["custom-enterprise-model"],
         "requires_key": True,
-        "description": "Modelos de razonamiento avanzado y alta eficiencia a muy bajo costo."
-    },
-    "claude": {
-        "name": "Anthropic Claude",
-        "default_model": "claude-3-5-haiku-20241022",
-        "default_url": "https://api.anthropic.com/v1",
-        "models": ["claude-3-5-haiku-20241022", "claude-3-5-sonnet-20241022"],
-        "requires_key": True,
-        "description": "Especializado en redacción natural, análisis de lenguaje y razonamiento matizado."
-    },
-    "openai": {
-        "name": "OpenAI (ChatGPT)",
-        "default_model": "gpt-4o-mini",
-        "default_url": "https://api.openai.com/v1",
-        "models": ["gpt-4o-mini", "gpt-4o", "o3-mini"],
-        "requires_key": True,
-        "description": "Modelos líderes de OpenAI mediante su plataforma para desarrolladores (API Key)."
-    },
-    "nvidia": {
-        "name": "NVIDIA NIM",
-        "default_model": "meta/llama-3.1-70b-instruct",
-        "default_url": "https://integrate.api.nvidia.com/v1",
-        "models": ["meta/llama-3.1-70b-instruct", "mistralai/mixtral-8x7b-instruct-v0.1"],
-        "requires_key": True,
-        "description": "Inferencia acelerada en centros de datos de NVIDIA."
-    },
-    "glm": {
-        "name": "Zhipu AI (GLM)",
-        "default_model": "glm-4-flash",
-        "default_url": "https://open.bigmodel.cn/api/paas/v4",
-        "models": ["glm-4-flash", "glm-4"],
-        "requires_key": True,
-        "description": "Familia de modelos multilingües de alto rendimiento."
-    },
-    "groq": {
-        "name": "Groq (Ultra Rápido)",
-        "default_model": "llama-3.3-70b-versatile",
-        "default_url": "https://api.groq.com/openai/v1",
-        "models": ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"],
-        "requires_key": True,
-        "description": "La velocidad de inferencia más rápida del mercado basada en procesadores LPU."
+        "description": "Pasarela corporativa o proxy privado configurado por el departamento de sistemas de la empresa."
     },
     "simulated": {
-        "name": "Modo Autónomo / Fallback (Sin API)",
+        "name": "Motor Autónomo Heurístico (Sin Conexión)",
         "default_model": "heuristic-engine-v1",
         "default_url": "",
         "models": ["heuristic-engine-v1"],
         "requires_key": False,
-        "description": "Motor de analítica interna integrado que no requiere internet ni claves externas."
+        "description": "Motor analítico nativo integrado en el backend que no requiere conexión externa ni claves API."
     }
 }
 
@@ -128,7 +88,7 @@ def get_db_summary(db: Session) -> Dict[str, Any]:
     }
 
 async def call_llm(messages: List[Dict[str, str]], provider: str = None, api_key: str = None, model: str = None, base_url: str = None) -> str:
-    """Envía la solicitud al proveedor de LLM configurado (Local o Nube)"""
+    """Envía la solicitud al endpoint de inferencia según la configuración de red"""
     prov = provider or AI_CONFIG["provider"]
     key = api_key if api_key is not None else AI_CONFIG["api_key"]
     mod = model or AI_CONFIG["model"]
@@ -137,50 +97,20 @@ async def call_llm(messages: List[Dict[str, str]], provider: str = None, api_key
     if prov == "simulated" or not prov:
         return generate_simulated_response(messages)
 
-    # 1. Proveedor: Anthropic Claude (formato propio)
-    if prov == "claude":
-        if not key:
-            return generate_simulated_response(messages, "No se configuró API Key para Claude. Mostrando respuesta simulada:")
-        try:
-            # Extraer prompt de sistema
-            system_prompt = next((m["content"] for m in messages if m["role"] == "system"), "Eres el asistente inteligente del ERP SAD.")
-            user_messages = [m for m in messages if m["role"] != "system"]
-
-            headers = {
-                "x-api-key": key,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json"
-            }
-            payload = {
-                "model": mod or "claude-3-5-haiku-20241022",
-                "max_tokens": 1024,
-                "system": system_prompt,
-                "messages": user_messages
-            }
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                res = await client.post("https://api.anthropic.com/v1/messages", headers=headers, json=payload)
-                if res.status_code == 200:
-                    data = res.json()
-                    return data["content"][0]["text"]
-                else:
-                    return f"Error de Claude ({res.status_code}): {res.text}"
-        except Exception as e:
-            return generate_simulated_response(messages, f"Error conectando a Claude ({str(e)}). Respuesta local:")
-
-    # 2. Proveedores con estándar compatible con OpenAI (Ollama, Gemini, DeepSeek, NVIDIA, GLM, Groq, OpenAI)
+    # Invocación mediante protocolo REST estándar de chat completions
     endpoint = f"{url.rstrip('/')}/chat/completions"
     headers = {"Content-Type": "application/json"}
     if key:
         headers["Authorization"] = f"Bearer {key}"
 
     payload = {
-        "model": mod or PROVIDERS_INFO.get(prov, {}).get("default_model", "gpt-4o-mini"),
+        "model": mod or PROVIDERS_INFO.get(prov, {}).get("default_model", "standard-model-v1"),
         "messages": messages,
         "temperature": 0.6
     }
 
     try:
-        async with httpx.AsyncClient(timeout=35.0) as client:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             res = await client.post(endpoint, headers=headers, json=payload)
             if res.status_code == 200:
                 data = res.json()
@@ -188,16 +118,16 @@ async def call_llm(messages: List[Dict[str, str]], provider: str = None, api_key
             else:
                 return generate_simulated_response(
                     messages, 
-                    f"Aviso: El proveedor '{prov}' respondió con error {res.status_code} ({res.text[:120]}). Generando respuesta del motor interno:"
+                    f"Aviso del servicio ({res.status_code}): Generando respuesta mediante el motor analítico interno:"
                 )
     except Exception as e:
         return generate_simulated_response(
             messages, 
-            f"Aviso: No se pudo contactar con {prov} ({str(e)}). Usando motor analítico interno:"
+            f"Aviso de conexión con el endpoint ({str(e)}). Respuesta generada localmente:"
         )
 
 def generate_simulated_response(messages: List[Dict[str, str]], prefix_note: str = "") -> str:
-    """Motor de fallback con lógica de negocio real para que el sistema nunca falle"""
+    """Motor analítico autónomo con lógica de negocio real para operar sin dependencias externas"""
     user_msg = messages[-1]["content"].lower() if messages else ""
     
     response = ""
@@ -236,17 +166,18 @@ def generate_simulated_response(messages: List[Dict[str, str]], prefix_note: str
         )
     else:
         response = (
-            f"¡Hola! Soy **SAD Copilot**, tu asistente inteligente de gestión empresarial. "
-            "Tengo acceso en tiempo real a las métricas del ERP, inventario y registros de ventas. "
-            "¿En qué puedo ayudarte hoy? Puedes pedirme análisis de ventas, alertas de stock, redacción de correos o recomendaciones de estrategia comercial."
+            f"¡Hola! Soy el **Asistente Virtual de SAD ERP**, tu apoyo para la gestión y análisis del negocio. "
+            "Tengo acceso en tiempo real a las métricas del sistema, inventario y registros de ventas. "
+            "¿En qué puedo ayudarte hoy? Puedes pedirme análisis de ventas, alertas de stock, redacción de correos o recomendaciones comerciales."
         )
+
 
     if prefix_note:
         return f"> ℹ️ *{prefix_note}*\n\n{response}"
     return response
 
 async def generate_ai_report(db: Session, custom_instructions: str = "") -> Dict[str, Any]:
-    """Genera un reporte analítico completo utilizando el LLM configurado"""
+    """Genera un reporte analítico completo utilizando el motor configurado"""
     summary = get_db_summary(db)
     
     prompt = f"""
@@ -283,7 +214,6 @@ Responde ÚNICAMENTE con el bloque JSON, sin texto antes ni después.
 
     raw_response = await call_llm(messages)
     
-    # Intentar parsear el JSON generado por el modelo
     try:
         clean_text = raw_response.strip()
         if clean_text.startswith("```json"):
@@ -304,7 +234,6 @@ Responde ÚNICAMENTE con el bloque JSON, sin texto antes ni después.
             "model_used": AI_CONFIG["model"]
         }
     except Exception:
-        # Fallback a estructura limpia si el modelo no entregó JSON estricto
         return {
             "resumen_ejecutivo": raw_response[:350] + ("..." if len(raw_response) > 350 else ""),
             "alertas_criticas": summary["productos_stock_critico"] if summary["productos_stock_critico"] else ["Inventario en niveles óptimos."],

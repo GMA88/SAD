@@ -73,13 +73,13 @@ async def get_ai_report(db: Session = Depends(get_db)):
     return await ai_service.generate_ai_report(db)
 
 @router.post("/chat")
-async def chat_with_copilot(req: ChatRequest, db: Session = Depends(get_db)):
-    """Chat interactivo con SAD Copilot, inyectando contexto vivo de la base de datos"""
+async def chat_with_assistant(req: ChatRequest, db: Session = Depends(get_db)):
+    """Chat interactivo con el Asistente Virtual, inyectando contexto vivo de la base de datos"""
     summary = ai_service.get_db_summary(db)
 
     # Inyección de contexto empresarial
     system_context = f"""
-Eres 'SAD Copilot', un asistente ejecutivo de inteligencia empresarial integrado en el ERP SAD.
+Eres el Asistente Virtual del ERP SAD, un agente analítico integrado en la plataforma.
 Tu rol es asistir al administrador y empleados respondiendo dudas sobre inventario, ventas, clientes y estrategia comercial.
 
 Contexto en tiempo real de la base de datos empresarial:
