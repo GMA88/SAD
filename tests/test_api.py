@@ -188,11 +188,36 @@ def test_ai_chat_asistente():
     chat_payload = {
         "messages": [
             {"role": "user", "content": "¿Cuáles son los productos con alerta de stock bajo?"}
-        ]
+        ],
+        "lang": "es"
     }
     resp = client.post("/ai/chat", json=chat_payload)
     assert resp.status_code == 200
     data = resp.json()
     assert "reply" in data
     assert len(data["reply"]) > 10
+
+def test_ai_chat_asistente_english():
+    # Validar que el endpoint acepte parámetro de idioma en inglés
+    chat_payload = {
+        "messages": [
+            {"role": "user", "content": "What are the products with critical low stock today?"}
+        ],
+        "lang": "en"
+    }
+    resp = client.post("/ai/chat", json=chat_payload)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "reply" in data
+    assert len(data["reply"]) > 10
+
+def test_reporte_ai_english():
+    # Validar generación de reporte ejecutivo en inglés
+    resp = client.get("/ai/reporte?lang=en")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "resumen_ejecutivo" in data
+    assert "alertas_criticas" in data
+    assert "recomendaciones" in data
+
 

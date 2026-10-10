@@ -31,12 +31,28 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend
 } from 'recharts'
+import { translations } from './translations'
 import './index.css'
 
 const API_BASE = 'http://127.0.0.1:8000'
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#ec4899']
 
 function App() {
+  const [lang, setLang] = useState(() => localStorage.getItem('sad_lang') || 'es')
+  const t = (key) => translations[lang]?.[key] || translations['es']?.[key] || key
+
+  const toggleLanguage = () => {
+    const nextLang = lang === 'es' ? 'en' : 'es'
+    setLang(nextLang)
+    localStorage.setItem('sad_lang', nextLang)
+    setChatMessages(prev => {
+      if (prev.length <= 1) {
+        return [{ role: 'assistant', content: translations[nextLang].chat_welcome }]
+      }
+      return prev
+    })
+  }
+
   const [activeTab, setActiveTab] = useState('dashboard')
   const [ventas, setVentas] = useState([])
   const [inventario, setInventario] = useState([])
@@ -70,7 +86,7 @@ function App() {
   const [chatMessages, setChatMessages] = useState([
     {
       role: 'assistant',
-      content: '¡Hola! Soy el **Asistente Virtual de SAD ERP**, tu apoyo para la gestión y análisis de datos del negocio. ¿En qué te puedo ayudar hoy? Puedes consultarme sobre ventas, stock crítico, redactar correos a clientes o pedirme un análisis comercial.'
+      content: translations[localStorage.getItem('sad_lang') || 'es'].chat_welcome
     }
   ])
 
@@ -211,7 +227,8 @@ function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: newHistory.map(m => ({ role: m.role, content: m.content }))
+          messages: newHistory.map(m => ({ role: m.role, content: m.content })),
+          lang: lang
         })
       })
 
@@ -221,13 +238,17 @@ function App() {
       } else {
         setChatMessages([...newHistory, { 
           role: 'assistant', 
-          content: 'Ocurrió un error al contactar con el modelo de IA. Verifica tu configuración en la pestaña de Configuración IA.' 
+          content: lang === 'en' 
+            ? 'An error occurred while contacting the AI model. Check your settings in the AI Configuration tab.' 
+            : 'Ocurrió un error al contactar con el modelo de IA. Verifica tu configuración en la pestaña de Configuración IA.' 
         }])
       }
     } catch (err) {
       setChatMessages([...newHistory, { 
         role: 'assistant', 
-        content: 'Error de conexión con el backend de FastAPI. Asegúrate de que el servidor esté activo.' 
+        content: lang === 'en' 
+          ? 'Network connection error with FastAPI backend. Ensure the server is online.' 
+          : 'Error de conexión con el backend de FastAPI. Asegúrate de que el servidor esté activo.' 
       }])
     } finally {
       setLoadingChat(false)
@@ -360,7 +381,7 @@ function App() {
     setShowAiModal(true)
     setLoadingAi(true)
     try {
-      const res = await fetch(`${API_BASE}/ai/reporte`)
+      const res = await fetch(`${API_BASE}/ai/reporte?lang=${lang}`)
       if (res.ok) {
         setAiReport(await res.json())
       }
@@ -420,34 +441,43 @@ function App() {
         
         <nav className="nav-menu">
           <a className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
-            <LayoutDashboard size={20} /> Dashboard
+            <LayoutDashboard size={20} /> {t('nav_dashboard')}
           </a>
           <a className={`nav-item ${activeTab === 'inventario' ? 'active' : ''}`} onClick={() => setActiveTab('inventario')}>
-            <Package size={20} /> Inventario ({inventario.length})
+            <Package size={20} /> {t('nav_inventario')} ({inventario.length})
           </a>
           <a className={`nav-item ${activeTab === 'ventas' ? 'active' : ''}`} onClick={() => setActiveTab('ventas')}>
-            <ShoppingCart size={20} /> Ventas ({ventas.length})
+            <ShoppingCart size={20} /> {t('nav_ventas')} ({ventas.length})
           </a>
           <a className={`nav-item ${activeTab === 'usuarios' ? 'active' : ''}`} onClick={() => setActiveTab('usuarios')}>
-            <Users size={20} /> Usuarios ({usuarios.length})
+            <Users size={20} /> {t('nav_usuarios')} ({usuarios.length})
           </a>
           <a className={`nav-item ${activeTab === 'asistente' ? 'active' : ''}`} onClick={() => setActiveTab('asistente')}>
-            <Bot size={20} /> Asistente Virtual <span className="badge badge-info" style={{fontSize: '10px', padding: '2px 6px'}}>Nuevo</span>
+            <Bot size={20} /> {t('nav_asistente')} <span className="badge badge-info" style={{fontSize: '10px', padding: '2px 6px'}}>{lang === 'es' ? 'Nuevo' : 'New'}</span>
           </a>
           <a className={`nav-item ${activeTab === 'configuracion' ? 'active' : ''}`} onClick={() => setActiveTab('configuracion')}>
-            <Sliders size={20} /> Configuración IA
+            <Sliders size={20} /> {t('nav_configuracion')}
           </a>
           
           <div style={{marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border)'}}>
             <button 
               className="btn btn-secondary" 
+              style={{width: '100%', justifyContent: 'center', marginBottom: '8px', gap: '8px', background: 'rgba(255,255,255,0.06)'}}
+              onClick={toggleLanguage}
+              title={lang === 'es' ? 'Switch interface to English' : 'Cambiar interfaz a Español'}
+            >
+              <Globe size={16} style={{color: 'var(--accent)'}} />
+              <span>{lang === 'es' ? '🇺🇸 English' : '🇲🇽 Español'}</span>
+            </button>
+            <button 
+              className="btn btn-secondary" 
               style={{width: '100%', justifyContent: 'center', marginBottom: '10px'}}
               onClick={handleSeedData}
             >
-              <RefreshCw size={16} /> Cargar Datos Demo
+              <RefreshCw size={16} /> {lang === 'es' ? 'Cargar Datos Demo' : 'Load Demo Data'}
             </button>
             <div style={{fontSize: '11.5px', color: 'var(--text-muted)', textAlign: 'center'}}>
-              IA: {activeProviderMeta.name ? activeProviderMeta.name.split(' ')[0] : 'Simulado'} ({aiConfig.current.model})
+              IA: {activeProviderMeta.name ? activeProviderMeta.name.split(' ')[0] : 'Local'} ({aiConfig.current.model})
             </div>
           </div>
         </nav>
@@ -468,15 +498,24 @@ function App() {
           <>
             <div className="header">
               <div>
-                <h1>Dashboard de Inteligencia</h1>
-                <p>Métricas empresariales y analítica en tiempo real {loading && "(Actualizando...)"}</p>
+                <h1>{lang === 'es' ? 'Dashboard de Inteligencia' : 'Business Intelligence Dashboard'}</h1>
+                <p>{lang === 'es' ? 'Métricas empresariales y analítica en tiempo real' : 'Real-time enterprise metrics & operational analytics'} {loading && `(${lang === 'es' ? 'Actualizando...' : 'Updating...'})`}</p>
               </div>
-              <div style={{display: 'flex', gap: '12px'}}>
-                <button className="btn btn-secondary" onClick={fetchData} title="Refrescar">
-                  <RefreshCw size={16} /> Refrescar
+              <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
+                <button 
+                  className="btn btn-secondary" 
+                  onClick={toggleLanguage}
+                  style={{padding: '8px 12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px'}}
+                  title={lang === 'es' ? 'Switch interface to English' : 'Cambiar interfaz a Español'}
+                >
+                  <Globe size={15} />
+                  <strong>{lang === 'es' ? '🇺🇸 EN' : '🇲🇽 ES'}</strong>
+                </button>
+                <button className="btn btn-secondary" onClick={fetchData} title={t('btn_refresh')}>
+                  <RefreshCw size={16} /> {t('btn_refresh')}
                 </button>
                 <button className="btn btn-primary" onClick={handleGenerateReportModal}>
-                  <BrainCircuit size={16} /> Generar Reporte AI
+                  <BrainCircuit size={16} /> {t('btn_generate_report')}
                 </button>
               </div>
             </div>
@@ -486,47 +525,47 @@ function App() {
             <div className="dashboard-grid">
               <div className="kpi-card glass-panel">
                 <div className="kpi-header">
-                  <span className="kpi-title">Ingresos Totales</span>
+                  <span className="kpi-title">{t('kpi_revenue')}</span>
                   <div className="kpi-icon"><TrendingUp size={24} /></div>
                 </div>
                 <div className="kpi-value">${ingresosTotales.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</div>
                 <div className="kpi-trend trend-up">
-                  <ArrowUpRight size={16} /> Acumulado de ventas confirmadas
+                  <ArrowUpRight size={16} /> {t('kpi_revenue_subtitle')}
                 </div>
               </div>
 
               <div className="kpi-card glass-panel">
                 <div className="kpi-header">
-                  <span className="kpi-title">Ventas Realizadas</span>
+                  <span className="kpi-title">{t('kpi_sales')}</span>
                   <div className="kpi-icon"><ShoppingCart size={24} /></div>
                 </div>
                 <div className="kpi-value">{ventas.length}</div>
                 <div className="kpi-trend trend-up">
-                  <ArrowUpRight size={16} /> Transacciones registradas en BD
+                  <ArrowUpRight size={16} /> {t('kpi_sales_subtitle')}
                 </div>
               </div>
 
               <div className="kpi-card glass-panel">
                 <div className="kpi-header">
-                  <span className="kpi-title">Ticket Promedio</span>
+                  <span className="kpi-title">{t('kpi_ticket')}</span>
                   <div className="kpi-icon"><DollarSign size={24} /></div>
                 </div>
                 <div className="kpi-value">${ticketPromedio}</div>
                 <div className="kpi-trend trend-up">
-                  <ArrowUpRight size={16} /> Promedio por orden
+                  <ArrowUpRight size={16} /> {t('kpi_ticket_subtitle')}
                 </div>
               </div>
 
               <div className="kpi-card glass-panel">
                 <div className="kpi-header">
-                  <span className="kpi-title">Alertas de Stock</span>
+                  <span className="kpi-title">{t('kpi_stock')}</span>
                   <div className="kpi-icon" style={{color: alertasInventario > 0 ? 'var(--warning)' : 'var(--success)'}}>
                     <Activity size={24} />
                   </div>
                 </div>
-                <div className="kpi-value">{alertasInventario} Prods</div>
+                <div className="kpi-value">{alertasInventario} {lang === 'es' ? 'Prods' : 'Items'}</div>
                 <div className={`kpi-trend ${alertasInventario > 0 ? 'trend-down' : 'trend-up'}`}>
-                  {alertasInventario > 0 ? <><ArrowDownRight size={16} /> Menos de 5 unidades</> : <><ArrowUpRight size={16} /> Stock saludable</>}
+                  {alertasInventario > 0 ? <><ArrowDownRight size={16} /> {t('kpi_stock_subtitle')}</> : <><ArrowUpRight size={16} /> {lang === 'es' ? 'Stock saludable' : 'Healthy inventory'}</>}
                 </div>
               </div>
             </div>
@@ -597,10 +636,10 @@ function App() {
                   <Bot size={22} />
                 </div>
                 <div>
-                  <h2 style={{fontSize: '18px', fontWeight: 600, color: '#fff'}}>Asistente Virtual — SAD Intelligence</h2>
+                  <h2 style={{fontSize: '18px', fontWeight: 600, color: '#fff'}}>{t('chat_header_title')}</h2>
                   <div style={{fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px'}}>
                     <span style={{display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#10b981'}}></span>
-                    Conectado con {activeProviderMeta.name || 'Motor Local'} ({aiConfig.current.model})
+                    {t('chat_connected_with')} {activeProviderMeta.name || (lang === 'es' ? 'Motor Local' : 'Local Engine')} ({aiConfig.current.model})
                   </div>
                 </div>
               </div>
@@ -609,7 +648,7 @@ function App() {
                 style={{fontSize: '12px', padding: '6px 12px'}}
                 onClick={() => setActiveTab('configuracion')}
               >
-                <Sliders size={14} /> Cambiar IA
+                <Sliders size={14} /> {t('chat_change_ai')}
               </button>
             </div>
 
@@ -630,7 +669,7 @@ function App() {
                     <Bot size={20} />
                   </div>
                   <div className="bubble-content" style={{display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)'}}>
-                    <RefreshCw size={16} className="spin" /> Analizando base de datos y generando respuesta...
+                    <RefreshCw size={16} className="spin" /> {lang === 'es' ? 'Analizando base de datos y generando respuesta...' : 'Analyzing database metrics and generating response...'}
                   </div>
                 </div>
               )}
@@ -639,17 +678,17 @@ function App() {
 
             {/* Chips rápidos de sugerencia */}
             <div className="chat-quick-chips">
-              <button className="chip-btn" onClick={() => handleSendMessage('¿Cuáles son los productos con stock crítico que debo pedir hoy?')}>
-                ⚠️ Productos con stock crítico
+              <button className="chip-btn" onClick={() => handleSendMessage(lang === 'en' ? 'Which products have critical stock levels and need reordering today?' : '¿Cuáles son los productos con stock crítico que debo pedir hoy?')}>
+                {t('chat_suggestion_stock')}
               </button>
-              <button className="chip-btn" onClick={() => handleSendMessage('¿Cuál ha sido la venta más grande y a quién se le facturó?')}>
-                🏆 Venta más grande
+              <button className="chip-btn" onClick={() => handleSendMessage(lang === 'en' ? 'What was the highest sale recorded and which customer bought it?' : '¿Cuál ha sido la venta más grande y a quién se le facturó?')}>
+                {t('chat_suggestion_top_sale')}
               </button>
-              <button className="chip-btn" onClick={() => handleSendMessage('Sugiere 3 estrategias comerciales para elevar el ticket promedio.')}>
-                📈 Estrategias de venta
+              <button className="chip-btn" onClick={() => handleSendMessage(lang === 'en' ? 'Suggest 3 strategic sales actions to increase our average ticket size.' : 'Sugiere 3 estrategias comerciales para elevar el ticket promedio.')}>
+                {t('chat_suggestion_strategy')}
               </button>
-              <button className="chip-btn" onClick={() => handleSendMessage('Redacta un correo formal de agradecimiento para el cliente de la última venta.')}>
-                ✉️ Redactar correo a cliente
+              <button className="chip-btn" onClick={() => handleSendMessage(lang === 'en' ? 'Draft a professional thank-you email for the client of the latest sale.' : 'Redacta un correo formal de agradecimiento para el cliente de la última venta.')}>
+                {t('chat_suggestion_email')}
               </button>
             </div>
 
@@ -663,13 +702,13 @@ function App() {
             >
               <input 
                 type="text" 
-                placeholder="Haz una consulta sobre inventario, ventas, clientes o reportes..."
+                placeholder={t('chat_input_placeholder')}
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 disabled={loadingChat}
               />
               <button type="submit" className="btn btn-primary" disabled={loadingChat || !chatInput.trim()}>
-                <Send size={16} /> Enviar
+                <Send size={16} /> {t('chat_btn_send')}
               </button>
             </form>
           </div>
@@ -681,13 +720,13 @@ function App() {
           <div className="glass-panel table-panel">
             <div className="table-toolbar">
               <div>
-                <h2>Configuración de Inteligencia Artificial (BYOM)</h2>
+                <h2>{t('ai_settings_title')}</h2>
                 <p style={{color: 'var(--text-muted)', fontSize: '14px'}}>
-                  Elige entre inferencia local autónoma (servidor on-premise), pasarelas REST estándar o gateways corporativos privados.
+                  {t('ai_settings_subtitle')}
                 </p>
               </div>
               <div className="badge badge-success" style={{padding: '6px 14px', fontSize: '13px'}}>
-                <ShieldCheck size={16} /> Motor Activo: {activeProviderMeta.name || 'Simulado'}
+                <ShieldCheck size={16} /> {t('ai_active_engine')}: {activeProviderMeta.name || (lang === 'es' ? 'Simulado' : 'Heuristic')}
               </div>
             </div>
 
@@ -708,12 +747,12 @@ function App() {
                   >
                     <div className="provider-title">
                       <span>{info.name}</span>
-                      {isCurrentActive && <span className="badge badge-success" style={{fontSize: '10px'}}>En uso</span>}
+                      {isCurrentActive && <span className="badge badge-success" style={{fontSize: '10px'}}>{t('ai_card_in_use')}</span>}
                     </div>
                     <div className="provider-desc">{info.description}</div>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto'}}>
                       <span className={`badge ${info.requires_key ? 'badge-warning' : 'badge-info'}`}>
-                        {info.requires_key ? 'Requiere API Key' : '100% Gratuito'}
+                        {info.requires_key ? t('ai_card_requires_key') : t('ai_card_free')}
                       </span>
                       {isSelected && <Check size={18} style={{color: 'var(--accent)'}} />}
                     </div>
@@ -726,38 +765,38 @@ function App() {
             <form onSubmit={handleSaveAiConfig} className="glass-panel" style={{padding: '24px', display: 'flex', flexDirection: 'column', gap: '18px'}}>
               <h3 style={{fontSize: '18px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px'}}>
                 <Cpu size={18} style={{color: 'var(--accent)'}} /> 
-                Configurar: {aiConfig.providers[selectedProvider]?.name}
+                {t('ai_form_title')}: {aiConfig.providers[selectedProvider]?.name}
               </h3>
 
               {aiConfig.providers[selectedProvider]?.requires_key && (
                 <div className="form-group">
                   <label style={{display: 'flex', alignItems: 'center', gap: '6px'}}>
-                    <Key size={14} /> API Key
+                    <Key size={14} /> {t('ai_form_key')}
                     {aiConfig.current.has_key && selectedProvider === aiConfig.current.provider && (
-                      <span style={{color: '#10b981', fontSize: '12px'}}> (Clave guardada: {aiConfig.current.masked_key})</span>
+                      <span style={{color: '#10b981', fontSize: '12px'}}> ({t('ai_form_key_saved')}: {aiConfig.current.masked_key})</span>
                     )}
                   </label>
                   <input 
                     type="password"
                     className="form-control"
-                    placeholder="Ingresa tu clave de API (sk-...)"
+                    placeholder={t('ai_form_key_placeholder')}
                     value={apiKeyInput}
                     onChange={(e) => setApiKeyInput(e.target.value)}
                   />
                   <span style={{fontSize: '12px', color: 'var(--text-muted)'}}>
-                    {selectedProvider === 'cloud_standard' && 'Ingresa el token o clave provista por tu servicio de inferencia estándar.'}
-                    {selectedProvider === 'cloud_custom' && 'Ingresa el token de autorización configurado para el gateway interno.'}
+                    {selectedProvider === 'cloud_standard' && t('ai_form_key_helper_standard')}
+                    {selectedProvider === 'cloud_custom' && t('ai_form_key_helper_custom')}
                   </span>
                 </div>
               )}
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Modelo Seleccionado</label>
+                  <label>{t('ai_form_model')}</label>
                   <input 
                     type="text"
                     className="form-control"
-                    placeholder="Ej: standard-model-v1, high-performance-v1, balanced-8b"
+                    placeholder={t('ai_form_model_placeholder')}
                     value={modelInput}
                     onChange={(e) => setModelInput(e.target.value)}
                     required
@@ -781,12 +820,12 @@ function App() {
 
                 <div className="form-group">
                   <label style={{display: 'flex', alignItems: 'center', gap: '6px'}}>
-                    <Globe size={14} /> Endpoint Base URL (Opcional / Custom)
+                    <Globe size={14} /> {t('ai_form_endpoint')}
                   </label>
                   <input 
                     type="text"
                     className="form-control"
-                    placeholder="URL de endpoint personalizado"
+                    placeholder="http://127.0.0.1:11434/v1"
                     value={baseUrlInput}
                     onChange={(e) => setBaseUrlInput(e.target.value)}
                   />
@@ -796,7 +835,7 @@ function App() {
               <div style={{display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '10px'}}>
                 <button type="submit" className="btn btn-primary" disabled={savingConfig}>
                   {savingConfig ? <RefreshCw size={16} className="spin" /> : <Check size={16} />}
-                  Guardar Configuración y Activar IA
+                  {savingConfig ? t('ai_form_saving') : t('ai_form_btn_save')}
                 </button>
               </div>
             </form>
@@ -808,21 +847,23 @@ function App() {
           <div className="glass-panel table-panel">
             <div className="table-toolbar">
               <div>
-                <h2>Gestión de Inventario</h2>
-                <p style={{color: 'var(--text-muted)', fontSize: '14px'}}>Control de productos, stock disponible y precios unitarios</p>
+                <h2>{t('inv_title')}</h2>
+                <p style={{color: 'var(--text-muted)', fontSize: '14px'}}>
+                  {lang === 'es' ? 'Control de productos, existencias disponibles y precios unitarios' : 'Catalog management, stock availability & unit pricing'}
+                </p>
               </div>
               <div style={{display: 'flex', gap: '12px', alignItems: 'center'}}>
                 <div className="search-input-wrapper">
                   <Search size={18} className="search-icon" />
                   <input 
                     type="text" 
-                    placeholder="Buscar por nombre o código..."
+                    placeholder={t('inv_search_placeholder')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
                 <button className="btn btn-primary" onClick={() => setShowProductModal(true)}>
-                  <Plus size={16} /> Nuevo Producto
+                  <Plus size={16} /> {t('inv_btn_new')}
                 </button>
               </div>
             </div>
@@ -831,19 +872,19 @@ function App() {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Código</th>
-                    <th>Nombre del Producto</th>
-                    <th>Stock</th>
-                    <th>Precio Unitario</th>
-                    <th>Valor en Inventario</th>
-                    <th style={{textAlign: 'right'}}>Acciones</th>
+                    <th>{t('inv_col_code')}</th>
+                    <th>{t('inv_col_product')}</th>
+                    <th>{t('inv_col_stock')}</th>
+                    <th>{t('inv_col_price')}</th>
+                    <th>{lang === 'es' ? 'Valor en Inventario' : 'Inventory Value'}</th>
+                    <th style={{textAlign: 'right'}}>{t('inv_col_actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredInventory.length === 0 ? (
                     <tr>
                       <td colSpan="6" style={{textAlign: 'center', padding: '32px', color: 'var(--text-muted)'}}>
-                        No hay productos registrados en el inventario.
+                        {t('inv_empty')}
                       </td>
                     </tr>
                   ) : (
@@ -856,11 +897,11 @@ function App() {
                           <td>{p.nombre_producto}</td>
                           <td>
                             {isZero ? (
-                              <span className="badge badge-danger">Agotado ({p.cantidad_disponible})</span>
+                              <span className="badge badge-danger">{t('inv_status_out')} ({p.cantidad_disponible})</span>
                             ) : isLow ? (
-                              <span className="badge badge-warning">Stock Bajo ({p.cantidad_disponible})</span>
+                              <span className="badge badge-warning">{t('inv_status_low')} ({p.cantidad_disponible})</span>
                             ) : (
-                              <span className="badge badge-success">En Stock ({p.cantidad_disponible})</span>
+                              <span className="badge badge-success">{t('inv_status_ok')} ({p.cantidad_disponible})</span>
                             )}
                           </td>
                           <td>${p.precio_unitario.toFixed(2)}</td>
@@ -868,7 +909,7 @@ function App() {
                           <td style={{textAlign: 'right'}}>
                             <button 
                               className="btn btn-danger btn-icon"
-                              title="Eliminar producto"
+                              title={t('btn_delete')}
                               onClick={() => handleDeleteProduct(p.id, p.nombre_producto)}
                             >
                               <Trash2 size={16} />
@@ -889,11 +930,13 @@ function App() {
           <div className="glass-panel table-panel">
             <div className="table-toolbar">
               <div>
-                <h2>Historial de Ventas</h2>
-                <p style={{color: 'var(--text-muted)', fontSize: '14px'}}>Transacciones procesadas en tiempo real con descuento de inventario</p>
+                <h2>{t('sales_title')}</h2>
+                <p style={{color: 'var(--text-muted)', fontSize: '14px'}}>
+                  {lang === 'es' ? 'Transacciones procesadas en tiempo real con descuento de inventario' : 'Real-time processed transactions with automatic stock deduction'}
+                </p>
               </div>
               <button className="btn btn-primary" onClick={() => setShowSaleModal(true)}>
-                <Plus size={16} /> Registrar Venta
+                <Plus size={16} /> {t('sales_btn_new')}
               </button>
             </div>
 
@@ -901,21 +944,21 @@ function App() {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>ID</th>
-                    <th>Fecha</th>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Precio Unit.</th>
-                    <th>Total</th>
-                    <th>Cliente</th>
-                    <th>Vendedor</th>
+                    <th>{t('sales_col_id')}</th>
+                    <th>{t('sales_col_date')}</th>
+                    <th>{t('sales_col_product')}</th>
+                    <th>{t('sales_col_qty')}</th>
+                    <th>{t('inv_col_price')}</th>
+                    <th>{t('sales_col_total')}</th>
+                    <th>{t('sales_col_client')}</th>
+                    <th>{t('sales_col_seller')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {ventas.length === 0 ? (
                     <tr>
                       <td colSpan="8" style={{textAlign: 'center', padding: '32px', color: 'var(--text-muted)'}}>
-                        No hay ventas registradas aún. ¡Haz clic en "Registrar Venta" o "Cargar Datos Demo"!
+                        {t('sales_empty')}
                       </td>
                     </tr>
                   ) : (
@@ -923,7 +966,7 @@ function App() {
                       <tr key={v.id}>
                         <td>#{v.id}</td>
                         <td>{new Date(v.fecha_venta).toLocaleDateString()} {new Date(v.fecha_venta).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
-                        <td><strong>{v.producto?.nombre_producto || `ID Prod: ${v.producto_id}`}</strong></td>
+                        <td><strong>{v.producto?.nombre_producto || `ID: ${v.producto_id}`}</strong></td>
                         <td>{v.cantidad}</td>
                         <td>${v.precio_unitario?.toFixed(2)}</td>
                         <td style={{color: 'var(--success)', fontWeight: 600}}>
@@ -948,11 +991,13 @@ function App() {
           <div className="glass-panel table-panel">
             <div className="table-toolbar">
               <div>
-                <h2>Gestión de Usuarios</h2>
-                <p style={{color: 'var(--text-muted)', fontSize: '14px'}}>Usuarios con acceso al sistema y sus roles de autorización</p>
+                <h2>{t('users_title')}</h2>
+                <p style={{color: 'var(--text-muted)', fontSize: '14px'}}>
+                  {lang === 'es' ? 'Usuarios con acceso al sistema y sus roles de autorización' : 'System access accounts and authorized permission roles'}
+                </p>
               </div>
               <button className="btn btn-primary" onClick={() => setShowUserModal(true)}>
-                <Plus size={16} /> Nuevo Usuario
+                <Plus size={16} /> {t('users_btn_new')}
               </button>
             </div>
 
@@ -960,17 +1005,17 @@ function App() {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>ID</th>
-                    <th>Usuario</th>
-                    <th>Rol</th>
-                    <th>Estado</th>
+                    <th>{t('users_col_id')}</th>
+                    <th>{t('users_col_username')}</th>
+                    <th>{t('users_col_role')}</th>
+                    <th>{t('inv_col_status')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {usuarios.length === 0 ? (
                     <tr>
                       <td colSpan="4" style={{textAlign: 'center', padding: '32px', color: 'var(--text-muted)'}}>
-                        No hay usuarios cargados.
+                        {t('users_empty')}
                       </td>
                     </tr>
                   ) : (
@@ -980,11 +1025,11 @@ function App() {
                         <td><strong>{u.username}</strong></td>
                         <td>
                           <span className={`badge ${u.role === 'Administrador' ? 'badge-danger' : u.role === 'Gerente' ? 'badge-warning' : 'badge-info'}`}>
-                            {u.role || 'Empleado'}
+                            {u.role || 'Vendedor'}
                           </span>
                         </td>
                         <td>
-                          <span className="badge badge-success">Activo</span>
+                          <span className="badge badge-success">{lang === 'es' ? 'Activo' : 'Active'}</span>
                         </td>
                       </tr>
                     ))
@@ -1229,9 +1274,9 @@ function App() {
               <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
                 <BrainCircuit size={24} style={{color: 'var(--accent)'}} />
                 <div>
-                  <h2>Reporte Ejecutivo con Inteligencia Artificial</h2>
+                  <h2>{t('report_modal_title')}</h2>
                   <div style={{fontSize: '12px', color: 'var(--text-muted)'}}>
-                    Generado con: <span className="badge badge-info" style={{fontSize: '11px'}}>{aiReport?.provider_used || aiConfig.current.provider} ({aiReport?.model_used || aiConfig.current.model})</span>
+                    {t('report_modal_generated')}: <span className="badge badge-info" style={{fontSize: '11px'}}>{aiReport?.provider_used || aiConfig.current.provider} ({aiReport?.model_used || aiConfig.current.model})</span>
                   </div>
                 </div>
               </div>
@@ -1241,18 +1286,18 @@ function App() {
             {loadingAi ? (
               <div style={{textAlign: 'center', padding: '40px', color: 'var(--text-muted)'}}>
                 <RefreshCw size={32} className="spin" style={{margin: '0 auto 16px', display: 'block'}} />
-                Consultando el modelo de IA y analizando métricas de ventas y stock en tiempo real...
+                {t('report_loading')}
               </div>
             ) : aiReport ? (
               <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
                 <div className="glass-panel" style={{padding: '18px', background: 'rgba(59, 130, 246, 0.1)', borderColor: 'rgba(59, 130, 246, 0.3)'}}>
-                  <div style={{fontWeight: 600, color: 'var(--accent)', marginBottom: '8px', fontSize: '15px'}}>Diagnóstico Estratégico</div>
+                  <div style={{fontWeight: 600, color: 'var(--accent)', marginBottom: '8px', fontSize: '15px'}}>{t('report_executive_summary')}</div>
                   <div style={{fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap'}}>{aiReport.resumen_ejecutivo}</div>
                 </div>
 
                 <div>
                   <div style={{fontWeight: 600, color: '#f59e0b', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px'}}>
-                    <AlertTriangle size={16} /> Alertas de Abastecimiento Crítico
+                    <AlertTriangle size={16} /> {t('report_critical_alerts')}
                   </div>
                   <ul style={{paddingLeft: '20px', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '6px'}}>
                     {aiReport.alertas_criticas.map((alerta, i) => (
@@ -1262,7 +1307,7 @@ function App() {
                 </div>
 
                 <div>
-                  <div style={{fontWeight: 600, color: '#10b981', marginBottom: '8px'}}>Recomendaciones Comerciales Accionables</div>
+                  <div style={{fontWeight: 600, color: '#10b981', marginBottom: '8px'}}>{t('report_recommendations')}</div>
                   <ul style={{paddingLeft: '20px', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '6px'}}>
                     {aiReport.recomendaciones.map((rec, i) => (
                       <li key={i} style={{color: '#cbd5e1', lineHeight: '1.5'}}>{rec}</li>
@@ -1271,15 +1316,15 @@ function App() {
                 </div>
 
                 <div style={{background: 'rgba(16, 185, 129, 0.1)', padding: '14px 18px', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.3)', fontSize: '13.5px', color: '#34d399'}}>
-                  <strong>Proyección Económica:</strong> {aiReport.proyeccion_crecimiento}
+                  <strong>{t('report_growth_projection')}:</strong> {aiReport.proyeccion_crecimiento}
                 </div>
 
                 <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '10px'}}>
-                  <button className="btn btn-secondary" onClick={() => setShowAiModal(false)}>Cerrar Reporte</button>
+                  <button className="btn btn-secondary" onClick={() => setShowAiModal(false)}>{lang === 'es' ? 'Cerrar Reporte' : 'Close Report'}</button>
                 </div>
               </div>
             ) : (
-              <div>No se pudo generar el reporte.</div>
+              <div>{lang === 'es' ? 'No se pudo generar el reporte.' : 'Could not generate report.'}</div>
             )}
           </div>
         </div>

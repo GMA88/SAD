@@ -24,11 +24,11 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
     system_prompt: Optional[str] = None
+    lang: Optional[str] = "es"
 
 @router.get("/config")
 def get_ai_config():
     """Obtiene la configuración actual y los proveedores disponibles"""
-    # Devolver la API key ofuscada por seguridad si existe
     curr_key = ai_service.AI_CONFIG.get("api_key", "")
     masked_key = f"{curr_key[:4]}...{curr_key[-4:]}" if len(curr_key) > 8 else ("****" if curr_key else "")
 
@@ -71,17 +71,39 @@ def update_ai_config(config: AIConfigRequest):
     }
 
 @router.get("/reporte")
-async def get_ai_report(db: Session = Depends(get_db)):
+async def get_ai_report(lang: str = "es", db: Session = Depends(get_db)):
     """Genera un reporte analítico de negocio con el modelo de IA seleccionado"""
-    return await ai_service.generate_ai_report(db)
+    return await ai_service.generate_ai_report(db, lang=lang)
 
 @router.post("/chat")
 async def chat_with_assistant(req: ChatRequest, db: Session = Depends(get_db)):
     """Chat interactivo con el Asistente Virtual, inyectando contexto vivo de la base de datos"""
     summary = ai_service.get_db_summary(db)
+    is_en = (req.lang or "es").lower() == "en"
 
-    # Inyección de contexto empresarial
-    system_context = f"""
+    if is_en:
+        system_context = f"""
+You are the Virtual Assistant of SAD ERP, an analytical AI agent integrated into the enterprise platform.
+Your role is to assist managers and staff by answering questions about inventory, sales, customers, and business strategy.
+
+Real-time business database context:
+- Total Revenue: ${summary['total_ingresos']:,.2f} USD ({summary['num_ventas']} transactions).
+- Average Ticket per Sale: ${summary['ticket_promedio']:,.2f} USD.
+- Total Products in Catalog: {summary['total_productos']}.
+- Low Stock Alerts (< 5 units): {summary['productos_stock_critico']}.
+- Out of Stock Items: {summary['productos_agotados']}.
+- Best-selling Product: {summary['producto_estrella']}.
+- Catalog Sample: {summary['catalogo_muestra']}.
+- Recent Transactions: {summary['ultimas_ventas']}.
+
+Response Guidelines:
+1. Always respond professionally, concisely, and empathetically in English.
+2. Ground all answers in the real numbers provided above when asked about figures.
+3. If requested to draft emails or suggest commercial actions, be proactive, executive, and structured.
+4. Use Markdown formatting (bolding, lists, bullet points) for maximum readability.
+"""
+    else:
+        system_context = f"""
 Eres el Asistente Virtual del ERP SAD, un agente analítico integrado en la plataforma.
 Tu rol es asistir al administrador y empleados respondiendo dudas sobre inventario, ventas, clientes y estrategia comercial.
 
@@ -106,7 +128,7 @@ Pautas de respuesta:
     for msg in req.messages:
         formatted_messages.append({"role": msg.role, "content": msg.content})
 
-    ai_reply = await ai_service.call_llm(formatted_messages)
+    ai_reply = await ai_service.call_llm(formatted_messages, lang=req.lang or "es")
 
     return {
         "reply": ai_reply,
