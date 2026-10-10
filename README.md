@@ -20,6 +20,10 @@ Sistema Integral de Gestión Empresarial (ERP) modernizado a una arquitectura de
 |:---:|:---:|
 | ![Dashboard BI](docs/images/dashboard_bi.png) | ![Reporte AI](docs/images/ai_report.png) |
 
+| 💬 Copilot IA (Chatbot Contextual) | ⚙️ Configuración Multi-IA (BYOM) |
+|:---:|:---:|
+| ![Copilot IA](docs/images/copilot_chat.png) | ![Configuración IA](docs/images/ai_config.png) |
+
 | 📦 Control de Inventario y Stock | 🛒 Punto de Venta y Transacciones |
 |:---:|:---:|
 | ![Inventario](docs/images/inventario.png) | ![Ventas](docs/images/ventas.png) |
@@ -29,10 +33,18 @@ Sistema Integral de Gestión Empresarial (ERP) modernizado a una arquitectura de
 
 ## 🚀 Características Principales
 
+### 🤖 Asistente Inteligente "SAD Copilot" y Arquitectura Multi-IA (BYOM)
+- **Chatbot Asistente con Contexto Vivo**: Conectado directamente a la base de datos empresarial. Responde en lenguaje natural preguntas sobre ingresos, rotura de inventario, mejores clientes y redacción de comunicaciones comerciales.
+- **Soporte Híbrido Multi-Proveedor (Local + Cloud)**:
+  - **IA Local (100% privada y gratuita)**: Ollama (`llama3.2`, `deepseek-r1`, `phi3.5`, `mistral`, `gemma2`).
+  - **APIs Cloud**: Google Gemini (`gemini-1.5-flash`), Anthropic Claude (`claude-3-5-haiku`), DeepSeek (`deepseek-chat`), NVIDIA NIM (`meta/llama-3.1-70b`), Zhipu GLM (`glm-4-flash`), Groq (`llama-3.3-70b`) y OpenAI (`gpt-4o-mini`).
+  - **Motor Autónomo / Fallback**: En caso de no contar con conexión a internet o claves externas, el sistema opera con un motor heurístico interno sin interrumpir el flujo.
+- **Diagnóstico Ejecutivo Generativo**: Módulo (`/ai/reporte`) que analiza en tiempo real los patrones de venta y stock para sugerir estrategias accionables de crecimiento y alertas de compras.
+
 ### 📊 Dashboard de Inteligencia de Negocios (BI)
 - **KPIs en tiempo real**: Ingresos totales, volumen de órdenes registradas, ticket promedio por transacción y monitoreo de stock crítico.
 - **Visualización de Datos**: Curvas de tendencias de facturación histórica y distribución de inventario utilizando componentes interactivos de `Recharts`.
-- **Diagnóstico AI**: Módulo analítico integrado (`/ai/reporte`) que genera resúmenes ejecutivos, detección de riesgos de desabasto y recomendaciones de crecimiento de negocio.
+
 
 ### 📦 Gestión de Inventario (CRUD)
 - Catálogo de productos con código SKU, precio unitario y control de stock disponible.

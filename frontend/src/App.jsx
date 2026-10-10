@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   LayoutDashboard,
   Package,
@@ -17,7 +17,15 @@ import {
   X,
   CheckCircle,
   AlertTriangle,
-  DollarSign
+  DollarSign,
+  Bot,
+  Send,
+  Cpu,
+  Key,
+  Globe,
+  Sliders,
+  ShieldCheck,
+  Check
 } from 'lucide-react'
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -46,6 +54,28 @@ function App() {
 
   // Búsqueda y filtros
   const [searchTerm, setSearchTerm] = useState('')
+
+  // Configuración de IA
+  const [aiConfig, setAiConfig] = useState({
+    current: { provider: 'simulated', model: 'heuristic-engine-v1', has_key: false, masked_key: '' },
+    providers: {}
+  })
+  const [selectedProvider, setSelectedProvider] = useState('simulated')
+  const [apiKeyInput, setApiKeyInput] = useState('')
+  const [modelInput, setModelInput] = useState('')
+  const [baseUrlInput, setBaseUrlInput] = useState('')
+  const [savingConfig, setSavingConfig] = useState(false)
+
+  // Chatbot Copilot
+  const [chatMessages, setChatMessages] = useState([
+    {
+      role: 'assistant',
+      content: '¡Hola! Soy **SAD Copilot**, tu asistente inteligente con acceso a los datos en tiempo real de este ERP. ¿En qué te puedo ayudar hoy? Puedes consultarme sobre ventas, stock crítico, redactar correos a clientes o pedirme un análisis comercial.'
+    }
+  ])
+  const [chatInput, setChatInput] = useState('')
+  const [loadingChat, setLoadingChat] = useState(false)
+  const chatEndRef = useRef(null)
 
   // Formularios
   const [newProduct, setNewProduct] = useState({
@@ -80,15 +110,23 @@ function App() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const [resVentas, resInventario, resUsuarios] = await Promise.all([
+      const [resVentas, resInventario, resUsuarios, resAi] = await Promise.all([
         fetch(`${API_BASE}/ventas/`),
         fetch(`${API_BASE}/inventario/`),
-        fetch(`${API_BASE}/usuarios/`)
+        fetch(`${API_BASE}/usuarios/`),
+        fetch(`${API_BASE}/ai/config`)
       ])
       
       if (resVentas.ok) setVentas(await resVentas.json())
       if (resInventario.ok) setInventario(await resInventario.json())
       if (resUsuarios.ok) setUsuarios(await resUsuarios.json())
+      if (resAi.ok) {
+        const aiData = await resAi.json()
+        setAiConfig(aiData)
+        setSelectedProvider(aiData.current.provider)
+        setModelInput(aiData.current.model)
+        setBaseUrlInput(aiData.current.base_url || '')
+      }
     } catch (error) {
       console.error("Error al conectar con la API:", error)
       notify("Error conectando con la API de FastAPI en el puerto 8000", "error")
@@ -100,6 +138,12 @@ function App() {
   useEffect(() => {
     fetchData()
   }, [])
+
+  useEffect(() => {
+    if (activeTab === 'copilot') {
+      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [chatMessages, activeTab])
 
   // Cargar datos de demostración
   const handleSeedData = async () => {
@@ -116,6 +160,75 @@ function App() {
       notify("Error en la petición de datos demo", "error")
     } finally {
       setLoading(false)
+    }
+  }
+
+  // Guardar configuración de IA
+  const handleSaveAiConfig = async (e) => {
+    e.preventDefault()
+    setSavingConfig(true)
+    try {
+      const res = await fetch(`${API_BASE}/ai/config`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: selectedProvider,
+          api_key: apiKeyInput,
+          model: modelInput,
+          base_url: baseUrlInput
+        })
+      })
+
+      if (res.ok) {
+        notify(`Motor de IA configurado exitosamente a "${aiConfig.providers[selectedProvider]?.name || selectedProvider}"`)
+        const cfgRes = await fetch(`${API_BASE}/ai/config`)
+        if (cfgRes.ok) setAiConfig(await cfgRes.json())
+        setApiKeyInput('') // Limpiar input sensible
+      } else {
+        notify("Error al guardar la configuración de IA", "error")
+      }
+    } catch (err) {
+      notify("Error de conexión al configurar IA", "error")
+    } finally {
+      setSavingConfig(false)
+    }
+  }
+
+  // Enviar mensaje al Copilot
+  const handleSendMessage = async (textToSend = null) => {
+    const query = (textToSend || chatInput).trim()
+    if (!query) return
+
+    const newHistory = [...chatMessages, { role: 'user', content: query }]
+    setChatMessages(newHistory)
+    setChatInput('')
+    setLoadingChat(true)
+
+    try {
+      const res = await fetch(`${API_BASE}/ai/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: newHistory.map(m => ({ role: m.role, content: m.content }))
+        })
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setChatMessages([...newHistory, { role: 'assistant', content: data.reply }])
+      } else {
+        setChatMessages([...newHistory, { 
+          role: 'assistant', 
+          content: 'Ocurrió un error al contactar con el modelo de IA. Verifica tu configuración en la pestaña de Configuración IA.' 
+        }])
+      }
+    } catch (err) {
+      setChatMessages([...newHistory, { 
+        role: 'assistant', 
+        content: 'Error de conexión con el backend de FastAPI. Asegúrate de que el servidor esté activo.' 
+      }])
+    } finally {
+      setLoadingChat(false)
     }
   }
 
@@ -292,6 +405,8 @@ function App() {
   const selectedProdObj = inventario.find(p => p.id === parseInt(newSale.producto_id, 10))
   const saleSubtotal = selectedProdObj ? (selectedProdObj.precio_unitario * (newSale.cantidad || 0)).toFixed(2) : 0
 
+  const activeProviderMeta = aiConfig.providers[aiConfig.current.provider] || {}
+
   return (
     <div className="app-container">
       {/* Sidebar */}
@@ -314,6 +429,12 @@ function App() {
           <a className={`nav-item ${activeTab === 'usuarios' ? 'active' : ''}`} onClick={() => setActiveTab('usuarios')}>
             <Users size={20} /> Usuarios ({usuarios.length})
           </a>
+          <a className={`nav-item ${activeTab === 'copilot' ? 'active' : ''}`} onClick={() => setActiveTab('copilot')}>
+            <Bot size={20} /> Copilot IA <span className="badge badge-info" style={{fontSize: '10px', padding: '2px 6px'}}>Nuevo</span>
+          </a>
+          <a className={`nav-item ${activeTab === 'configuracion' ? 'active' : ''}`} onClick={() => setActiveTab('configuracion')}>
+            <Sliders size={20} /> Configuración IA
+          </a>
           
           <div style={{marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border)'}}>
             <button 
@@ -323,8 +444,8 @@ function App() {
             >
               <RefreshCw size={16} /> Cargar Datos Demo
             </button>
-            <div style={{fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center'}}>
-              Conectado a FastAPI :8000
+            <div style={{fontSize: '11.5px', color: 'var(--text-muted)', textAlign: 'center'}}>
+              IA: {activeProviderMeta.name ? activeProviderMeta.name.split(' ')[0] : 'Simulado'} ({aiConfig.current.model})
             </div>
           </div>
         </nav>
@@ -462,6 +583,224 @@ function App() {
               </div>
             </div>
           </>
+        )}
+
+        {/* ================= PESTAÑA: COPILOT IA (CHATBOT) ================= */}
+        {activeTab === 'copilot' && (
+          <div className="glass-panel chat-wrapper">
+            <div className="chat-header">
+              <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+                <div className="bubble-avatar avatar-ai">
+                  <Bot size={22} />
+                </div>
+                <div>
+                  <h2 style={{fontSize: '18px', fontWeight: 600, color: '#fff'}}>SAD Copilot — Asistente de Negocio</h2>
+                  <div style={{fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px'}}>
+                    <span style={{display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#10b981'}}></span>
+                    Conectado con {activeProviderMeta.name || 'Motor Local'} ({aiConfig.current.model})
+                  </div>
+                </div>
+              </div>
+              <button 
+                className="btn btn-secondary" 
+                style={{fontSize: '12px', padding: '6px 12px'}}
+                onClick={() => setActiveTab('configuracion')}
+              >
+                <Sliders size={14} /> Cambiar IA
+              </button>
+            </div>
+
+            <div className="chat-messages">
+              {chatMessages.map((msg, idx) => (
+                <div key={idx} className={`chat-bubble ${msg.role}`}>
+                  <div className={`bubble-avatar ${msg.role === 'assistant' ? 'avatar-ai' : 'avatar-user'}`}>
+                    {msg.role === 'assistant' ? <Bot size={20} /> : <Users size={18} />}
+                  </div>
+                  <div className="bubble-content">
+                    {msg.content}
+                  </div>
+                </div>
+              ))}
+              {loadingChat && (
+                <div className="chat-bubble assistant">
+                  <div className="bubble-avatar avatar-ai">
+                    <Bot size={20} />
+                  </div>
+                  <div className="bubble-content" style={{display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)'}}>
+                    <RefreshCw size={16} className="spin" /> Analizando base de datos y generando respuesta...
+                  </div>
+                </div>
+              )}
+              <div ref={chatEndRef} />
+            </div>
+
+            {/* Chips rápidos de sugerencia */}
+            <div className="chat-quick-chips">
+              <button className="chip-btn" onClick={() => handleSendMessage('¿Cuáles son los productos con stock crítico que debo pedir hoy?')}>
+                ⚠️ Productos con stock crítico
+              </button>
+              <button className="chip-btn" onClick={() => handleSendMessage('¿Cuál ha sido la venta más grande y a quién se le facturó?')}>
+                🏆 Venta más grande
+              </button>
+              <button className="chip-btn" onClick={() => handleSendMessage('Sugiere 3 estrategias comerciales para elevar el ticket promedio.')}>
+                📈 Estrategias de venta
+              </button>
+              <button className="chip-btn" onClick={() => handleSendMessage('Redacta un correo formal de agradecimiento para el cliente de la última venta.')}>
+                ✉️ Redactar correo a cliente
+              </button>
+            </div>
+
+            {/* Input de chat */}
+            <form 
+              className="chat-input-bar"
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleSendMessage()
+              }}
+            >
+              <input 
+                type="text" 
+                placeholder="Pregúntale a SAD Copilot sobre inventario, ventas, clientes o reportes..."
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                disabled={loadingChat}
+              />
+              <button type="submit" className="btn btn-primary" disabled={loadingChat || !chatInput.trim()}>
+                <Send size={16} /> Enviar
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* ================= PESTAÑA: CONFIGURACIÓN IA ================= */}
+        {activeTab === 'configuracion' && (
+          <div className="glass-panel table-panel">
+            <div className="table-toolbar">
+              <div>
+                <h2>Configuración de Inteligencia Artificial (BYOM)</h2>
+                <p style={{color: 'var(--text-muted)', fontSize: '14px'}}>
+                  Elige entre correr modelos locales gratuitos y privados (Ollama) o conectar APIs en la nube (Gemini, Claude, DeepSeek, NVIDIA, etc.)
+                </p>
+              </div>
+              <div className="badge badge-success" style={{padding: '6px 14px', fontSize: '13px'}}>
+                <ShieldCheck size={16} /> Motor Activo: {activeProviderMeta.name || 'Simulado'}
+              </div>
+            </div>
+
+            {/* Grid de Proveedores */}
+            <div className="settings-grid">
+              {Object.entries(aiConfig.providers).map(([key, info]) => {
+                const isSelected = selectedProvider === key
+                const isCurrentActive = aiConfig.current.provider === key
+                return (
+                  <div 
+                    key={key} 
+                    className={`provider-card ${isSelected ? 'active' : ''}`}
+                    onClick={() => {
+                      setSelectedProvider(key)
+                      setModelInput(info.default_model)
+                      setBaseUrlInput(info.default_url)
+                    }}
+                  >
+                    <div className="provider-title">
+                      <span>{info.name}</span>
+                      {isCurrentActive && <span className="badge badge-success" style={{fontSize: '10px'}}>En uso</span>}
+                    </div>
+                    <div className="provider-desc">{info.description}</div>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto'}}>
+                      <span className={`badge ${info.requires_key ? 'badge-warning' : 'badge-info'}`}>
+                        {info.requires_key ? 'Requiere API Key' : '100% Gratuito'}
+                      </span>
+                      {isSelected && <Check size={18} style={{color: 'var(--accent)'}} />}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Formulario de Configuración del Proveedor Seleccionado */}
+            <form onSubmit={handleSaveAiConfig} className="glass-panel" style={{padding: '24px', display: 'flex', flexDirection: 'column', gap: '18px'}}>
+              <h3 style={{fontSize: '18px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                <Cpu size={18} style={{color: 'var(--accent)'}} /> 
+                Configurar: {aiConfig.providers[selectedProvider]?.name}
+              </h3>
+
+              {aiConfig.providers[selectedProvider]?.requires_key && (
+                <div className="form-group">
+                  <label style={{display: 'flex', alignItems: 'center', gap: '6px'}}>
+                    <Key size={14} /> API Key
+                    {aiConfig.current.has_key && selectedProvider === aiConfig.current.provider && (
+                      <span style={{color: '#10b981', fontSize: '12px'}}> (Clave guardada: {aiConfig.current.masked_key})</span>
+                    )}
+                  </label>
+                  <input 
+                    type="password"
+                    className="form-control"
+                    placeholder="Ingresa tu clave de API (sk-...)"
+                    value={apiKeyInput}
+                    onChange={(e) => setApiKeyInput(e.target.value)}
+                  />
+                  <span style={{fontSize: '12px', color: 'var(--text-muted)'}}>
+                    {selectedProvider === 'gemini' && 'Obtén tu clave gratis sin tarjeta en https://aistudio.google.com'}
+                    {selectedProvider === 'deepseek' && 'Obtén tu clave en https://platform.deepseek.com'}
+                    {selectedProvider === 'claude' && 'Obtén tu clave en https://console.anthropic.com'}
+                    {selectedProvider === 'openai' && 'Obtén tu clave en https://platform.openai.com'}
+                    {selectedProvider === 'groq' && 'Obtén tu clave gratuita y rápida en https://console.groq.com'}
+                    {selectedProvider === 'nvidia' && 'Obtén créditos de prueba en https://build.nvidia.com'}
+                  </span>
+                </div>
+              )}
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Modelo Seleccionado</label>
+                  <input 
+                    type="text"
+                    className="form-control"
+                    placeholder="Ej: llama3.2, gemini-1.5-flash, deepseek-chat"
+                    value={modelInput}
+                    onChange={(e) => setModelInput(e.target.value)}
+                    required
+                  />
+                  {aiConfig.providers[selectedProvider]?.models && (
+                    <div style={{display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '6px'}}>
+                      {aiConfig.providers[selectedProvider].models.map(m => (
+                        <button 
+                          key={m} 
+                          type="button" 
+                          className="chip-btn" 
+                          style={{padding: '3px 8px', fontSize: '11px'}}
+                          onClick={() => setModelInput(m)}
+                        >
+                          {m}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label style={{display: 'flex', alignItems: 'center', gap: '6px'}}>
+                    <Globe size={14} /> Endpoint Base URL (Opcional / Custom)
+                  </label>
+                  <input 
+                    type="text"
+                    className="form-control"
+                    placeholder="URL de endpoint personalizado"
+                    value={baseUrlInput}
+                    onChange={(e) => setBaseUrlInput(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div style={{display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '10px'}}>
+                <button type="submit" className="btn btn-primary" disabled={savingConfig}>
+                  {savingConfig ? <RefreshCw size={16} className="spin" /> : <Check size={16} />}
+                  Guardar Configuración y Activar IA
+                </button>
+              </div>
+            </form>
+          </div>
         )}
 
         {/* ================= PESTAÑA: INVENTARIO ================= */}
@@ -885,11 +1224,16 @@ function App() {
       {/* ================= MODAL: REPORTE AI ================= */}
       {showAiModal && (
         <div className="modal-overlay" onClick={() => setShowAiModal(false)}>
-          <div className="modal-content" style={{maxWidth: '650px'}} onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" style={{maxWidth: '680px'}} onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
                 <Sparkles size={24} style={{color: 'var(--accent)'}} />
-                <h2>Reporte Ejecutivo con Inteligencia Artificial</h2>
+                <div>
+                  <h2>Reporte Ejecutivo con Inteligencia Artificial</h2>
+                  <div style={{fontSize: '12px', color: 'var(--text-muted)'}}>
+                    Generado con: <span className="badge badge-info" style={{fontSize: '11px'}}>{aiReport?.provider_used || aiConfig.current.provider} ({aiReport?.model_used || aiConfig.current.model})</span>
+                  </div>
+                </div>
               </div>
               <button className="close-btn" onClick={() => setShowAiModal(false)}><X size={20} /></button>
             </div>
@@ -897,18 +1241,18 @@ function App() {
             {loadingAi ? (
               <div style={{textAlign: 'center', padding: '40px', color: 'var(--text-muted)'}}>
                 <RefreshCw size={32} className="spin" style={{margin: '0 auto 16px', display: 'block'}} />
-                Analizando métricas de ventas, stock y patrones de demanda...
+                Consultando el modelo de IA y analizando métricas de ventas y stock en tiempo real...
               </div>
             ) : aiReport ? (
               <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
-                <div className="glass-panel" style={{padding: '16px', background: 'rgba(59, 130, 246, 0.1)', borderColor: 'rgba(59, 130, 246, 0.3)'}}>
-                  <div style={{fontWeight: 600, color: 'var(--accent)', marginBottom: '6px'}}>Diagnóstico General</div>
-                  <div style={{fontSize: '14px', lineHeight: '1.6'}}>{aiReport.resumen_ejecutivo}</div>
+                <div className="glass-panel" style={{padding: '18px', background: 'rgba(59, 130, 246, 0.1)', borderColor: 'rgba(59, 130, 246, 0.3)'}}>
+                  <div style={{fontWeight: 600, color: 'var(--accent)', marginBottom: '8px', fontSize: '15px'}}>Diagnóstico Estratégico</div>
+                  <div style={{fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap'}}>{aiReport.resumen_ejecutivo}</div>
                 </div>
 
                 <div>
                   <div style={{fontWeight: 600, color: '#f59e0b', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px'}}>
-                    <AlertTriangle size={16} /> Alertas Críticas
+                    <AlertTriangle size={16} /> Alertas de Abastecimiento Crítico
                   </div>
                   <ul style={{paddingLeft: '20px', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '6px'}}>
                     {aiReport.alertas_criticas.map((alerta, i) => (
@@ -918,20 +1262,20 @@ function App() {
                 </div>
 
                 <div>
-                  <div style={{fontWeight: 600, color: '#10b981', marginBottom: '8px'}}>Recomendaciones Estratégicas</div>
+                  <div style={{fontWeight: 600, color: '#10b981', marginBottom: '8px'}}>Recomendaciones Comerciales Accionables</div>
                   <ul style={{paddingLeft: '20px', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '6px'}}>
                     {aiReport.recomendaciones.map((rec, i) => (
-                      <li key={i} style={{color: 'var(--text-muted)'}}>{rec}</li>
+                      <li key={i} style={{color: '#cbd5e1', lineHeight: '1.5'}}>{rec}</li>
                     ))}
                   </ul>
                 </div>
 
-                <div style={{background: 'rgba(16, 185, 129, 0.1)', padding: '12px 16px', borderRadius: '10px', border: '1px solid rgba(16, 185, 129, 0.3)', fontSize: '13px', color: '#34d399'}}>
-                  <strong>Proyección:</strong> {aiReport.proyeccion_crecimiento}
+                <div style={{background: 'rgba(16, 185, 129, 0.1)', padding: '14px 18px', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.3)', fontSize: '13.5px', color: '#34d399'}}>
+                  <strong>Proyección Económica:</strong> {aiReport.proyeccion_crecimiento}
                 </div>
 
                 <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '10px'}}>
-                  <button className="btn btn-secondary" onClick={() => setShowAiModal(false)}>Cerrar</button>
+                  <button className="btn btn-secondary" onClick={() => setShowAiModal(false)}>Cerrar Reporte</button>
                 </div>
               </div>
             ) : (

@@ -153,3 +153,43 @@ def test_reporte_ai():
     assert "alertas_criticas" in data
     assert "recomendaciones" in data
     assert "proyeccion_crecimiento" in data
+
+def test_ai_configuracion_multi_proveedor():
+    # 1. Obtener lista de proveedores soportados
+    resp = client.get("/ai/config")
+    assert resp.status_code == 200
+    providers = resp.json()["providers"]
+    assert "local_ollama" in providers
+    assert "gemini" in providers
+    assert "claude" in providers
+    assert "deepseek" in providers
+    assert "nvidia" in providers
+    assert "glm" in providers
+    assert "groq" in providers
+
+    # 2. Configurar DeepSeek
+    update_resp = client.post("/ai/config", json={
+        "provider": "deepseek",
+        "api_key": "sk-test12345678",
+        "model": "deepseek-chat"
+    })
+    assert update_resp.status_code == 200
+    assert update_resp.json()["provider"] == "deepseek"
+
+    # 3. Volver a modo simulado para pruebas seguras
+    reset_resp = client.post("/ai/config", json={"provider": "simulated"})
+    assert reset_resp.status_code == 200
+
+def test_ai_chat_copilot():
+    # Validar que el Copilot interactúe respondiendo consultas sobre el ERP
+    chat_payload = {
+        "messages": [
+            {"role": "user", "content": "¿Cuáles son los productos con alerta de stock bajo?"}
+        ]
+    }
+    resp = client.post("/ai/chat", json=chat_payload)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "reply" in data
+    assert len(data["reply"]) > 10
+

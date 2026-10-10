@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api import models
 from api.database import engine
-from api.routers import usuarios, inventario, ventas
+from api.routers import usuarios, inventario, ventas, ai
 
 # Esta línea le dice a SQLAlchemy que cree todas las tablas en SQLite
 models.Base.metadata.create_all(bind=engine)
@@ -26,6 +26,7 @@ app.add_middleware(
 app.include_router(usuarios.router)
 app.include_router(inventario.router)
 app.include_router(ventas.router)
+app.include_router(ai.router)
 
 @app.get("/")
 def read_root():
@@ -122,29 +123,4 @@ def seed_data(db: Session = Depends(get_db)):
         db.commit()
 
     return {"message": "Datos de prueba cargados exitosamente"}
-
-@app.get("/ai/reporte")
-def reporte_ai(db: Session = Depends(get_db)):
-    """Genera un análisis de inteligencia de negocios para el dashboard"""
-    ventas = db.query(models.Venta).all()
-    inventario = db.query(models.Inventario).all()
-
-    total_ingresos = sum(v.total_venta for v in ventas)
-    num_ventas = len(ventas)
-    alertas_stock = [p.nombre_producto for p in inventario if p.cantidad_disponible < 5]
-
-    ticket_promedio = round(total_ingresos / num_ventas, 2) if num_ventas > 0 else 0
-
-    return {
-        "resumen_ejecutivo": f"El sistema ha procesado {num_ventas} transacciones con un volumen acumulado de ${total_ingresos:,.2f} USD. El ticket promedio de venta se sitúa en ${ticket_promedio:,.2f} USD.",
-        "alertas_criticas": [
-            f"Alerta de Stock Crítico: {prod} cuenta con menos de 5 unidades. Reabastecimiento urgente sugerido." for prod in alertas_stock
-        ] if alertas_stock else ["Todos los productos tienen niveles de inventario óptimos."],
-        "recomendaciones": [
-            "Diversificar la oferta de productos en la categoría de periféricos para aumentar ventas cruzadas.",
-            "Implementar descuentos por volumen en pedidos corporativos para incentivar compras mayores.",
-            "Optimizar el canal de compras automatizadas antes de que se agoten los ítems con alerta crítica."
-        ],
-        "proyeccion_crecimiento": "Proyección estimada de crecimiento del +18.4% para el próximo ciclo basada en el ritmo de pedidos."
-    }
 
